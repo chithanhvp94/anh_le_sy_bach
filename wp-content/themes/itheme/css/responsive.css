@@ -1,0 +1,198 @@
+@media (min-width: 1200px){
+    .container {
+        width: 1200px;
+    }
+}
+
+@media (max-width: 1200px) and (min-width: 992px){
+    .container {
+        width: 100%;
+    }
+}
+@media (max-width: 992px){
+    .shipping-product-text{
+        text-align: center;
+    }
+    .box-content-single-product-details .title-page{
+        padding: 0px 15px;
+    }
+    .template-main-loop{
+        width:100%;
+    }
+    .slider-mobile-template{
+        display: block;
+    }
+    .flickity-owl-template{
+        padding: 40px 30px;
+    }
+    .list-product-image-mobile{
+        display: block;
+    }
+    .product-multi-tone .box-content-left{
+        text-align: center;
+    }
+    .image-product-multi-tone{
+     display: none;
+    }
+    .lear-more-video{
+        float: none;
+        margin: 0px auto;
+    }
+    .primary-product-template{
+        padding-bottom: 40px;
+    }
+    .shipping-product-text{
+        margin-bottom: 50px;
+    }
+
+    .box-logo-mobile,.box-header-mobile{
+        display: block;
+    }
+    #menu-template img,.menu-template #menu-desktop{
+display: none;
+    }
+    .main-primary{
+        min-width: inherit;
+    }
+    .container{
+        width: 95%;
+    }
+    .item-box-template{
+        margin-bottom: 30px;
+    }
+    .items-footer{
+        margin-bottom: 15px;
+    }
+}
+@media (max-width: 768px){
+    .container{
+        width: 100%;
+    }
+    .title-page h1{
+        margin-bottom: 25px;
+    }
+    .box-content-single-product-details .row{
+        margin: 0px;
+    }
+    .top-post-header, .flickity-owl-template{
+        padding: 30px 15px;
+    }
+    .items-top-post-header a{
+        font-size: 14px;
+    }
+    .box-word-product .right,.box-word-product .left{
+        display: block;
+        text-align: center;
+        width: 100%;
+    }
+    .title-box-ratio-get-inspired-with-our-hair{
+        font-size: 30px;
+    }
+    .image-product-multi-tone {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    .image-product-multi-tone img{
+        max-height: 180px;
+    }
+    .row10{
+        margin: 0px;
+    }
+    .box-content-single-product-details .left-details,.box-content-single-product-details .right-details{
+        padding: 15px 30px;
+    }
+    .info-shop-text-secondary-dark:before{
+        left: -10px;
+        top:-20px;
+    }
+}
+
+@media (max-width: 992px) and (min-width: 768px){
+    .box-logo-mobile{
+        width: 40%;
+        text-align: left;
+    }
+    .box-header-mobile{
+        width: 60%;
+    }
+}
+
+@media (max-width: 520px) {
+    .btn-talk-to-us{
+        height: 40px;
+        width: 140px;
+        margin-top: 10px;
+        font-size: 10px;
+    }
+    .post-related,.product-multi-tone .box-content-left .title-product-multi-tone,.title-block h2{
+        font-size: 16px;
+    }
+    .title-box-ratio-get-inspired-with-our-hair{
+        font-size: 18px;
+    }
+    .frequently-asked-questions .title-frequently-asked-questions{
+        font-size: 18px;
+    }
+    .grid-uniform-email-form input[type='submit'], .grid-uniform-email-form button{
+        padding: 9px 15px;
+        font-size: 13px;
+    }
+    .grid-uniform-email-form input[type='text']{
+        height: 36px;
+        font-size: 13px;
+    }
+    a.button-outline{
+        letter-spacing: inherit;
+        font-size: 13px;
+    }
+    .mini-cart-header,.top-header{
+        display: none;
+    }
+    .form-search-template-header{
+        padding: 0px;
+        margin-left: 10px;
+    }
+}
+@media (max-width: 480px){
+    .items-post-cat-home .title-post-home-cat a{
+        height: inherit;
+    }
+    .primary-product-template .container,.loop-info-product .container,.frequently-asked-questions,.list-items-product.list-post-related{
+        padding: 0px;
+    }
+    .woocommerce .woocommerce-breadcrumb,.box-content-single-product-details .left-details, .box-content-single-product-details .right-details{
+        padding: 15px;
+    }
+    .breadcrumb{
+        margin-top: 10px;
+    }
+    .ratio-get-inspired-with-our-hair{
+        height: inherit;
+        padding-bottom: inherit;
+    }
+    .item-box-template{
+        margin-bottom: 0px;
+    }
+    .position-ratio-get-inspired-with-our-hair{
+        position: relative;
+        top:auto;
+        left: auto;
+        transform:inherit;
+    }
+    .shop-the-look-btn{
+        width: 100%;
+    }
+}
+@media (max-width: 430px) {
+ .grid-uniform-email-form form .col-xs-8,.grid-uniform-email-form form .col-xs-4{
+     width: 100%;
+     text-align: center;
+     margin-bottom: 10px;
+ }
+    .blog-transforming .items-post-cat-home,.most-popular-not-custom .items-post-cat-home{
+        width: 100%;
+    }
+}

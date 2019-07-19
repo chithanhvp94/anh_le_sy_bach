@@ -1,0 +1,483 @@
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=1; plural=0;\n"
+"Project-Id-Version: Itheme WordPress\n"
+"POT-Creation-Date: 2017-08-20 19:04+0700\n"
+"PO-Revision-Date: 2017-08-20 19:26+0700\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.11\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-WPHeader: style.css\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"Last-Translator: \n"
+"Language: vi\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: 404.php:9
+msgid "The Requested Url Was Not Found"
+msgstr "URL bạn tìm kiếm không tồn tại"
+
+#: 404.php:10
+msgid ""
+"Sorry! Evidently the document you were looking for has either been moved or "
+"no longer exist"
+msgstr ""
+"Xin lỗi ! Rõ ràng tài liệu bạn đang tìm kiếm đã bị di chuyển hoặc không còn "
+"tồn tại nữa"
+
+#: inc/class-storefront-footer.php:11
+msgid "Sign up for promotions and weekly hair tips"
+msgstr "Đăng ký khuyến mãi và lời khuyên về tóc hàng tuần"
+
+#: inc/class-storefront-functions.php:58
+msgid "Post Related"
+msgstr "Bài viết liên quan"
+
+#: inc/class-storefront-functions.php:83 inc/class-storefront-functions.php:125
+#: inc/class-storefront-functions.php:320 inc/storefront/woocommerce.php:398
+msgid "Hair Extensions"
+msgstr "Chi tiết"
+
+#: inc/class-storefront-functions.php:111
+msgid "Post news"
+msgstr "Bài viết mới"
+
+#: inc/class-storefront-functions.php:204 inc/class-storefront-template.php:121
+#: inc/class-storefront-template.php:392
+msgid "Cart"
+msgstr "Giỏ hàng"
+
+#: inc/class-storefront-functions.php:270 inc/storefront/woocommerce.php:347
+msgid "LONGER, FULLER HAIR IN 5 MINUTES."
+msgstr "Video giới thiệu ngắn"
+
+#: inc/class-storefront-functions.php:280 inc/storefront/woocommerce.php:354
+msgid "Watch the video"
+msgstr "Xem video"
+
+#: inc/class-storefront-functions.php:370
+msgid "Continue reading"
+msgstr "Xem thêm"
+
+#: inc/class-storefront-template.php:78
+msgid "Login"
+msgstr "Đăng nhập"
+
+#: inc/class-storefront-template.php:86
+msgid "Register"
+msgstr "Đăng ký"
+
+#: inc/class-storefront-template.php:98
+msgid "Account"
+msgstr "Tài khoản"
+
+#: inc/class-storefront-template.php:340
+msgid "Shop the look"
+msgstr "Xem nhanh"
+
+#: inc/class-storefront-template.php:396
+msgid "Checkout"
+msgstr "Thanh toán"
+
+#: inc/class-storefront-template.php:400
+msgid "Success"
+msgstr "Thành công"
+
+#: inc/config.php:32 inc/config.php:33
+msgid "Theme Options"
+msgstr "Tùy chọn chủ đề"
+
+#: inc/config.php:136 inc/config.php:138
+msgid "Akasa Media JSC Professional website design on open source platform"
+msgstr ""
+
+#: inc/config.php:140
+msgid ""
+"Please click Save Changes to save the configuration information for your "
+"website"
+msgstr ""
+
+#: inc/config.php:156
+msgid "General configuration"
+msgstr ""
+
+#: inc/config.php:158
+msgid "General configuration for your website!"
+msgstr ""
+
+#: inc/config.php:163
+msgid "Header Page"
+msgstr ""
+
+#: inc/config.php:167
+msgid "Configure the header for your website"
+msgstr ""
+
+#: inc/config.php:173
+msgid "Mobile Logo"
+msgstr ""
+
+#: inc/config.php:176
+msgid "Logo for your website on mobile"
+msgstr ""
+
+#: inc/config.php:177
+msgid "Upload any media using the WordPress native uploader"
+msgstr ""
+
+#: inc/config.php:183
+msgid "Configuration Menu"
+msgstr ""
+
+#: inc/config.php:184
+msgid ""
+"Please create a menu in the Admin interface and select Menu display for the "
+"interface here. (Please do not select the same menu)."
+msgstr ""
+
+#: inc/config.php:190
+msgid "Menus Header Page"
+msgstr ""
+
+#: inc/config.php:191
+msgid "Please select the top menu for your website."
+msgstr ""
+
+#: inc/config.php:192
+msgid "The top menu is not displayed on your phone or tablet"
+msgstr ""
+
+#: inc/config.php:199
+msgid "Menus Primary"
+msgstr ""
+
+#: inc/config.php:200
+msgid "Please select the Main Menu for your Website."
+msgstr ""
+
+#: inc/config.php:201
+msgid ""
+"Please select this menu item (Menu is not visible on your phone or tablet "
+"display)"
+msgstr ""
+
+#: inc/config.php:208
+msgid "Menus Mobile"
+msgstr ""
+
+#: inc/config.php:209 inc/config.php:210
+msgid "Please select Menu for your mobile device."
+msgstr ""
+
+#: inc/config.php:220
+msgid "Menu Sticky"
+msgstr ""
+
+#: inc/config.php:224
+msgid "Configure Sticky Menu for your website (Menu When page is closed)"
+msgstr ""
+
+#: inc/config.php:232
+msgid "Configure menu when scrolling the page"
+msgstr ""
+
+#: inc/config.php:233
+msgid ""
+"Please configure menu when scrolling your website (Menu not showing on "
+"mobile)"
+msgstr ""
+
+#: inc/config.php:239
+msgid "Sicky Logo"
+msgstr ""
+
+#: inc/config.php:242
+msgid "Logo for your website on the menu bar when scrolling the page"
+msgstr ""
+
+#: inc/config.php:248
+msgid "Menus Sticky"
+msgstr ""
+
+#: inc/config.php:249 inc/config.php:250
+msgid "Please select Menu when scrolling your site."
+msgstr ""
+
+#: inc/config.php:257
+msgid "Footer"
+msgstr ""
+
+#: inc/config.php:260
+msgid "Configure Footer for your website"
+msgstr ""
+
+#: inc/config.php:268
+msgid "Menu Footer"
+msgstr ""
+
+#: inc/config.php:269
+msgid "Please configure the footer menu at the bottom of your web page"
+msgstr ""
+
+#: inc/config.php:277
+msgid "Menus Footer"
+msgstr ""
+
+#: inc/config.php:278
+msgid "Please select the Footer Menu at the bottom of your web page."
+msgstr ""
+
+#: inc/config.php:279
+msgid "Please select Menu footer for your website."
+msgstr ""
+
+#: inc/config.php:286
+msgid "The bottom of the page introduces the product."
+msgstr ""
+
+#: inc/config.php:300
+msgid "Content at the bottom of your web page."
+msgstr ""
+
+#: inc/storefront/config.php:19
+msgid "Product Tab"
+msgstr "Tab sản phẩm"
+
+#: inc/storefront/config.php:27
+msgid "Generates reusable form entries"
+msgstr ""
+
+#: inc/storefront/config.php:29
+msgid "Tab {#}"
+msgstr ""
+
+#: inc/storefront/config.php:30
+msgid "Add Another Entry"
+msgstr "Thêm mục nhập khác"
+
+#: inc/storefront/config.php:31
+msgid "Remove Entry"
+msgstr "Xóa Mục nhập"
+
+#: inc/storefront/config.php:39
+msgid "Entry Title"
+msgstr "Tiêu đề Mục nhập"
+
+#: inc/storefront/config.php:46
+msgid "Description"
+msgstr "miêu tả"
+
+#: inc/storefront/config.php:47
+msgid "Write a short description for this entry"
+msgstr "Viết mô tả ngắn cho mục nhập này"
+
+#: inc/storefront/functions.php:43
+msgid "Editor HTML Text Menu"
+msgstr "Trình soạn thảo văn bản HTML"
+
+#: inc/storefront/functions.php:59
+msgid "Do not display the navigation label instead of your content below"
+msgstr "Không hiển thị nhãn điều hướng thay vì nội dung của bạn dưới đây"
+
+#: inc/storefront/functions.php:63 inc/storefront/functions.php:124
+msgid "Không"
+msgstr ""
+
+#: inc/storefront/functions.php:64 inc/storefront/functions.php:125
+msgid "Có"
+msgstr ""
+
+#: inc/storefront/functions.php:104
+msgid "Option Your Page"
+msgstr "Tùy chọn trang của bạn"
+
+#: inc/storefront/functions.php:120
+msgid "Uninstall the default look"
+msgstr "Gỡ cài đặt giao diện mặc định"
+
+#: inc/storefront/functions.php:158
+msgid "Image Category"
+msgstr "Danh mục Hình ảnh"
+
+#: inc/storefront/functions.php:166
+msgid "Category Is Blog"
+msgstr "Danh mục Blog"
+
+#: inc/storefront/functions.php:170
+msgid "No Blog"
+msgstr "Không"
+
+#: inc/storefront/functions.php:171
+msgid "Blog"
+msgstr ""
+
+#: inc/storefront/functions.php:177
+msgid "Category URL Video"
+msgstr "Video URL Chuyên mục"
+
+#: inc/storefront/functions.php:184
+msgid "Feature Image Category"
+msgstr "Danh mục hình ảnh nổi bật"
+
+#: inc/storefront/functions.php:192
+msgid "Feature Post in category"
+msgstr "Bài đăng trong danh mục"
+
+#: inc/storefront/functions.php:202
+msgid "Custom Post in category"
+msgstr "Bài đăng Tùy chỉnh trong danh mục"
+
+#: inc/storefront/functions.php:227
+msgid "Description Product Category"
+msgstr "Mô tả sản phẩm Danh mục sản phẩm"
+
+#: inc/storefront/functions.php:245
+msgid "Your option option your product"
+msgstr "Lựa chọn tùy chọn sản phẩm của bạn"
+
+#: inc/storefront/functions.php:260
+msgid "Product Note"
+msgstr "Lưu ý sản phẩm"
+
+#: inc/storefront/functions.php:271
+msgid "Product Head"
+msgstr "Tieu đề nội dung  sản phẩm"
+
+#: inc/storefront/functions.php:278
+msgid "Product Free Shipping"
+msgstr "Vận chuyển miễn phí sản phẩm"
+
+#: inc/storefront/functions.php:288
+msgid "Product URL Video"
+msgstr "Video URL của sản phẩm"
+
+#: inc/storefront/functions.php:300
+msgid "Info Product"
+msgstr "thông tin Sản phẩm "
+
+#: inc/storefront/functions.php:315
+msgid "Product Shipping"
+msgstr "Vận chuyển sản phẩm"
+
+#: inc/storefront/functions.php:324
+msgid "Product URL Video See how it works"
+msgstr "Video của sản phẩm Xem cách hoạt động"
+
+#: inc/storefront/functions.php:333
+msgid "Product post"
+msgstr "Bài đăng sản phẩm"
+
+#: inc/storefront/functions.php:347
+msgid "Adapter Product"
+msgstr ""
+
+#: inc/storefront/functions.php:361
+msgid "Title Adapter"
+msgstr ""
+
+#: inc/storefront/functions.php:368
+msgid "Product Adapter"
+msgstr ""
+
+#: inc/storefront/functions.php:378
+msgid "Image Adapter"
+msgstr ""
+
+#: inc/storefront/template-ajax.php:14
+msgid "Product Add"
+msgstr "Thêm sản phẩm"
+
+#: inc/storefront/template-ajax.php:15
+msgid "Your Cart"
+msgstr "Giỏ hàng của bạn"
+
+#: inc/storefront/template-ajax.php:16 inc/storefront/woocommerce.php:129
+msgid "Product"
+msgstr "Sản phẩm"
+
+#: inc/storefront/template-ajax.php:17
+msgid "Sub Price"
+msgstr "Giá phụ"
+
+#: inc/storefront/template-ajax.php:18
+msgid "Total Product"
+msgstr "Tổng tiền"
+
+#: inc/storefront/template-ajax.php:19
+msgid "Total Product cart"
+msgstr "Tổng giỏ hàng"
+
+#: inc/storefront/template-ajax.php:20
+msgid "Continue"
+msgstr "Tiếp tục"
+
+#: inc/storefront/template-ajax.php:21
+msgid "Shop cart"
+msgstr "Giỏ hàng"
+
+#: inc/storefront/woocommerce.php:132
+msgid "Select Your Product"
+msgstr "Chọn sản phẩm của bạn"
+
+#: inc/storefront/woocommerce.php:271
+msgid "It's all in the details"
+msgstr "Xem chi tiết sản phẩm đầy đủ"
+
+#: inc/storefront/woocommerce.php:278
+msgid "View full details product"
+msgstr "Chi tiết"
+
+#: inc/storefront/woocommerce.php:303 inc/storefront/woocommerce.php:317
+msgid "Free shipping & 30-day returns"
+msgstr "Giao hàng miễn phí và thanh toán 30 ngày"
+
+#: inc/storefront/woocommerce.php:310
+msgid "View full shipping &amp; returns details"
+msgstr "Chi tiết"
+
+#: inc/storefront/woocommerce.php:353
+msgid "See how it works"
+msgstr "Làm thế nào nó hoạt động"
+
+#: inc/storefront/woocommerce.php:379
+msgid "POPULAR HAIR TUTORIALS"
+msgstr ""
+
+#: inc/storefront/woocommerce.php:437
+msgid "Frequently Asked Questions"
+msgstr "Các câu hỏi thường gặp"
+
+#: inc/storefront/woocommerce.php:489
+msgid "Still got a question?"
+msgstr "Vẫn có một câu hỏi"
+
+#: inc/storefront/woocommerce.php:490
+msgid "Talk to us"
+msgstr "Liên hệ"
+
+#: inc/storefront/woocommerce.php:607 inc/storefront/woocommerce.php:705
+msgid "Previous"
+msgstr "Trước"
+
+#: inc/storefront/woocommerce.php:611 inc/storefront/woocommerce.php:709
+msgid "Next"
+msgstr "Sau"
+
+#: inc/storefront/woocommerce.php:637
+msgid "Add to cart"
+msgstr "Thêm vào giỏ"
+
+#: inc/storefront/woocommerce.php:642
+msgid "Contact"
+msgstr "Liên hệ"
+
+#. Theme Name of the plugin/theme
+msgid "Itheme WordPress"
+msgstr ""
