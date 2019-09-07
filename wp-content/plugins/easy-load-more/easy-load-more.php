@@ -1,13 +1,13 @@
 <?php
 /*
  * Plugin Name: Easy Load More
- * Version: 1.0.2
+ * Version: 1.0.3
  * Plugin URI: http://www.idiom.co/
  * Description: Add an ajax load more button to any of your archive pages without editing your templates.
  * Author: Idiom Interactive
  * Author URI: http://www.idiom.co/
  * Requires at least: 4.0
- * Tested up to: 4.0
+ * Tested up to: 4.9
  *
  * Text Domain: easy-load-more
  * Domain Path: /lang/

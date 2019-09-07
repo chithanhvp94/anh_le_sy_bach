@@ -20,9 +20,9 @@ class Row {
             <input type="hidden" name="<?php echo wpdFormConst::WPDISCUZ_META_FORMS_STRUCTURE; ?>[<?php echo $id; ?>][row_order]" class="row_order" value="<?php echo $rowOrder; ?>" />
             <div class="wpd-form-row-head">
                 <div class="wpd-form-row-actions">
-                    <i title="<?php _e('Two column', 'wpdiscuz'); ?>" class="fa fa-columns wpd-form-columns-<?php echo $columnType; ?>"></i>
-                    |<i class="fa fa-trash" title="<?php _e('Delete', 'wpdiscuz'); ?>"></i>
-                    |<i class="fa fa-arrows" aria-hidden="true" title="<?php _e('Move', 'wpdiscuz'); ?>"></i>
+                    <i title="<?php _e('Two column', 'wpdiscuz'); ?>" class="fas fa-columns wpd-form-columns-<?php echo $columnType; ?>"></i>
+                    |<i class="fas fa-trash-alt" title="<?php _e('Delete', 'wpdiscuz'); ?>"></i>
+                    |<i class="fas fa-arrows-alt" aria-hidden="true" title="<?php _e('Move', 'wpdiscuz'); ?>"></i>
                 </div>
             </div>
             <div class="wpd-form-row">
@@ -66,7 +66,7 @@ class Row {
                 ?>
             </div>
             <div class="wpd-form-add-filed">
-                <i title="<?php _e('Add Field', 'wpdiscuz'); ?>" class="fa fa-plus"></i>
+                <i title="<?php _e('Add Field', 'wpdiscuz'); ?>" class="fas fa-plus"></i>
             </div>
         </div>
         <?php
@@ -169,7 +169,7 @@ class Row {
                     $metaData = maybe_unserialize($row['meta_value']);
                     if (is_array($metaData) && key_exists($oldName, $metaData)) {
                         $metaData = $this->chageArrayKey($metaData, $oldName, $newName);
-                        update_post_meta($row['post_id'], 'wpdiscuz_rating_count', $metaData);
+                        update_post_meta($row['post_id'], wpdFormConst::WPDISCUZ_RATING_COUNT, $metaData);
                     }
                 }
             }
@@ -186,7 +186,7 @@ class Row {
 
     private function getPostRatingMeta() {
         global $wpdb;
-        $sql = "SELECT `post_id`,`meta_value` FROM `{$wpdb->postmeta}` WHERE `meta_key` = 'wpdiscuz_rating_count'";
+        $sql = $wpdb->prepare("SELECT `post_id`,`meta_value` FROM `{$wpdb->postmeta}` WHERE `meta_key` = %s",wpdFormConst::WPDISCUZ_RATING_COUNT);
         return $wpdb->get_results($sql, ARRAY_A);
     }
 

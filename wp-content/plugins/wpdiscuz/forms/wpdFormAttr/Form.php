@@ -7,7 +7,7 @@ use wpdFormAttr\Field\DefaultField\Captcha;
 
 class Form {
 
-    private $wpdOptions;
+    public $wpdOptions;
     private $generalOptions;
     private $formeStructure;
     private $formPostTypes;
@@ -20,6 +20,8 @@ class Form {
     private $fieldsBeforeSave = array();
     private $ratings;
     private $ratingsExists = false;
+    private $ratingsFieldsKey = array();
+    public $isUserCanComment = true;
 
     public function __construct($options, $formID = 0) {
         $this->defaultsFieldsNames = array(
@@ -53,13 +55,20 @@ class Form {
                 foreach ($this->formFields as $key => $field) {
                     if (is_callable($field['type'] . '::getInstance') && !in_array($key, $this->defaultsFieldsNames)) {
                         $this->formCustomFields[$key] = $field;
-                        if (!$this->ratingsExists && $field['type'] == 'wpdFormAttr\Field\RatingField') {
-                            $this->ratingsExists = true;
+                        if ($field['type'] == 'wpdFormAttr\Field\RatingField') {
+                            $this->ratingsFieldsKey[] = $key;
                         }
                     }
                 }
             }
+            if (count($this->ratingsFieldsKey)) {
+                $this->ratingsExists = true;
+            }
         }
+    }
+
+    public function getFormCustomFields() {
+        return $this->formCustomFields;
     }
 
     public function setFormID($formID) {
@@ -113,6 +122,15 @@ class Form {
         return $this->generalOptions['show_subscription_bar'];
     }
 
+    public function isShowSubscriptionBarAgreement() {
+        $this->initFormMeta();
+        return isset($this->generalOptions['show_subscription_agreement']) ? $this->generalOptions['show_subscription_agreement'] : 0;
+    }
+
+    public function subscriptionBarAgreementLabel() {
+        return isset($this->generalOptions['subscription_agreement_label']) ? $this->generalOptions['subscription_agreement_label'] : __('I allow to use my email address and send notification about new comments and replies (you can unsubscribe at any time).', 'wpdiscuz');
+    }
+
     public function getCustomCSS() {
         return get_post_meta($this->formID, wpdFormConst::WPDISCUZ_META_FORMS_CSS, true);
     }
@@ -161,19 +179,20 @@ class Form {
     public function saveCommentMeta($commentID) {
         $comment = get_comment($commentID);
         $commentApproved = $comment->comment_approved;
+        do_action('wpdiscuz_before_save_commentmeta', $comment, $this->fieldsBeforeSave);
         foreach ($this->fieldsBeforeSave as $mettaKey => $data) {
             if ($this->ratingsExists && $this->formCustomFields[$mettaKey]['type'] == 'wpdFormAttr\Field\RatingField') {
                 $oldCommentRating = get_comment_meta($commentID, $mettaKey, true);
-                if ($oldCommentRating && $commentApproved) {
+                if ($oldCommentRating && $commentApproved === '1') {
                     $postID = $comment->comment_post_ID;
-                    $postRatingMeta = get_post_meta($postID, 'wpdiscuz_rating_count', true);
+                    $postRatingMeta = get_post_meta($postID, wpdFormConst::WPDISCUZ_RATING_COUNT, true);
                     $oldCommentRatingCount = $postRatingMeta[$mettaKey][$oldCommentRating] - 1;
                     if ($oldCommentRatingCount > 0) {
                         $postRatingMeta[$mettaKey][$oldCommentRating] = $oldCommentRatingCount;
                     } else {
                         unset($postRatingMeta[$mettaKey][$oldCommentRating]);
                     }
-                    update_post_meta($postID, 'wpdiscuz_rating_count', $postRatingMeta);
+                    update_post_meta($postID, wpdFormConst::WPDISCUZ_RATING_COUNT, $postRatingMeta);
                 }
                 $this->ratings[] = array('metakey' => $mettaKey, 'value' => $data);
             }
@@ -186,18 +205,18 @@ class Form {
             }
             $gRating = round($ratingSum / count($this->ratings));
             update_comment_meta($commentID, 'rating', $gRating);
-            if ($commentApproved) {
-                $this->saveProstRatingMeta($comment, $gRating);
+            if ($commentApproved === '1') {
+                $this->savePostRatingMeta($comment, $gRating);
             }
         }
     }
 
-    private function saveProstRatingMeta($comment, $rating) {
+    private function savePostRatingMeta($comment, $rating) {
         $postID = $comment->comment_post_ID;
         if (class_exists('WooCommerce') && get_post_type($postID) == 'product') {
             $ratingCount = get_post_meta($postID, '_wc_rating_count', true);
             $oldRatingMeta = get_comment_meta($comment->comment_ID, 'rating', true);
-            $oldRating = $oldRatingMeta ? $oldRating : 0;
+            $oldRating = $oldRatingMeta ? $oldRatingMeta : 0;
             if (isset($ratingCount[$oldRating])) {
                 $oldRatingCount = $ratingCount[$oldRating] - 1;
                 if ($oldRatingCount > 0) {
@@ -221,9 +240,9 @@ class Form {
             update_post_meta($postID, '_wc_average_rating', $averageRating);
             update_post_meta($postID, '_wc_rating_count', $ratingCount);
         } else {
-            $wpdiscuzRatingCountMeta = get_post_meta($postID, 'wpdiscuz_rating_count', true);
+            $wpdiscuzRatingCountMeta = get_post_meta($postID, wpdFormConst::WPDISCUZ_RATING_COUNT, true);
             $wpdiscuzRatingCount = $wpdiscuzRatingCountMeta && is_array($wpdiscuzRatingCountMeta) ? $wpdiscuzRatingCountMeta : array();
-
+            $wpdiscuzRatingCount = $this->cleanUnusedData($wpdiscuzRatingCount, $this->ratings);
             foreach ($this->ratings as $key => $value) {
                 if (isset($wpdiscuzRatingCount[$value['metakey']][$value['value']])) {
                     $wpdiscuzRatingCount[$value['metakey']][$value['value']] = $wpdiscuzRatingCount[$value['metakey']][$value['value']] + 1;
@@ -231,12 +250,35 @@ class Form {
                     $wpdiscuzRatingCount[$value['metakey']][$value['value']] = 1;
                 }
             }
-            update_post_meta($postID, 'wpdiscuz_rating_count', $wpdiscuzRatingCount);
+            update_post_meta($postID, wpdFormConst::WPDISCUZ_RATING_COUNT, $wpdiscuzRatingCount);
         }
+    }
+
+    private function cleanUnusedData($ratingMeta, $ratings) {
+        $ratingMetaKeys = array_keys($ratingMeta);
+        foreach ($ratingMetaKeys as $ratingMetaKey) {
+            $exists = false;
+            foreach ($ratings as $rating) {
+                if ($rating['metakey'] == $ratingMetaKey) {
+                    $exists = true;
+                    break;
+                }
+            }
+            if (!$exists) {
+                unset($ratingMeta[$ratingMetaKey]);
+            }
+        }
+        return $ratingMeta;
     }
 
     public function displayRatingMeta($content) {
         global $post;
+        if ($this->ratingsExists && $post->ID) {
+            $ratingsUpdateDate = get_post_meta($post->ID, wpdFormConst::WPDISCUZ_RATINGS_UPDATE_DATE, true);
+            if (!$ratingsUpdateDate || ($ratingsUpdateDate + WEEK_IN_SECONDS) < time()) {
+                $this->rebuildRaitingCounts($post->ID);
+            }
+        }
         if (!(class_exists('WooCommerce') && get_post_type($post) == 'product')) {
             if (in_array('before', $this->wpdOptions->displayRatingOnPost)) {
                 $content = $this->getRatingMetaHtml() . $content;
@@ -248,19 +290,55 @@ class Form {
         return $content;
     }
 
+    private function rebuildRaitingCounts($postID) {
+        global $wpdb;
+        $comments = get_comments(array('fields' => 'ids', 'post_id' => $postID));
+        if (!$comments) {
+            return;
+        }
+        $comments = implode(',', $comments);
+        $ratingData = array();
+        foreach ($this->ratingsFieldsKey as $key) {
+            $sql = $wpdb->prepare("SELECT COUNT(`meta_value`) AS rcount, `meta_value` AS rating FROM `{$wpdb->commentmeta}` WHERE `comment_id` IN({$comments}) AND `meta_key` = %s GROUP BY `meta_value`", $key);
+            $results = $wpdb->get_results($sql, ARRAY_A);
+            if ($results) {
+                foreach ($results as $result) {
+                    $rating = intval($result['rating']);
+                    if ($result['rcount'] > 0 && $rating >= 1 && $rating <= 5) {
+                        $ratingData[$key][$rating] = $result['rcount'];
+                    }
+                }
+            }
+        }
+        update_post_meta($postID, wpdFormConst::WPDISCUZ_RATING_COUNT, $ratingData);
+        update_post_meta($postID, wpdFormConst::WPDISCUZ_RATINGS_UPDATE_DATE, time());
+    }
+
     public function getRatingMetaHtml($atts = array()) {
-        global $post;
         $html = '';
         $atts = shortcode_atts(array(
             'metakey' => 'all',
             'show-lable' => true,
             'show-count' => true,
             'show-average' => true,
-            'itemprop' => true
+            'itemprop' => true,
+            'post_id' => null,
                 ), $atts);
+        if ($atts['post_id']) {
+            $post = get_post($atts['post_id']);
+            wp_enqueue_style('wpdiscuz-font-awesome');
+            wp_enqueue_style('wpdiscuz-ratings');
+            if (is_rtl()) {
+                wp_enqueue_style('wpdiscuz-ratings-rtl');
+            }
+            $ratingByPostId = true;
+        } else {
+            global $post;
+            $ratingByPostId = false;
+        }
         $this->initFormFields();
-        if ($this->ratingsExists && is_singular()) {
-            $wpdiscuzRatingCountMeta = get_post_meta($post->ID, 'wpdiscuz_rating_count', true);
+        if ($this->ratingsExists && (($this->wpdOptions->ratingCssOnNoneSingular && !is_singular()) || is_singular() || $ratingByPostId)) {
+            $wpdiscuzRatingCountMeta = get_post_meta($post->ID, wpdFormConst::WPDISCUZ_RATING_COUNT, true);
             $wpdiscuzRatingCount = $wpdiscuzRatingCountMeta && is_array($wpdiscuzRatingCountMeta) ? $wpdiscuzRatingCountMeta : array();
             $ratingList = array();
             foreach ($wpdiscuzRatingCount as $metaKey => $data) {
@@ -294,9 +372,11 @@ class Form {
     }
 
     private function getSingleRatingHtml($metakey, $ratingData, $args) {
+        global $post;
         $html = '';
         if (key_exists($metakey, $this->formCustomFields)) {
             $icon = $this->formCustomFields[$metakey]['icon'];
+            $icon = strpos(trim($icon), ' ') ? $icon : 'fas ' . $icon;
             $html .= '<div class="wpdiscuz-post-rating-wrap-' . $metakey . '">';
             if (filter_var($args['show-lable'], FILTER_VALIDATE_BOOLEAN)) {
                 $stat = '';
@@ -312,22 +392,22 @@ class Form {
             $html .= '<div class="wpdiscuz-stars-wrapper">
                                         <div class="wpdiscuz-stars-wrapper-inner">
                                          <div class="wpdiscuz-pasiv-stars">
-                                               <i class="fa ' . $icon . ' wcf-pasiv-star"></i>
-                                               <i class="fa ' . $icon . ' wcf-pasiv-star"></i>
-                                               <i class="fa ' . $icon . ' wcf-pasiv-star"></i>
-                                               <i class="fa ' . $icon . ' wcf-pasiv-star"></i>
-                                               <i class="fa ' . $icon . ' wcf-pasiv-star"></i>
+                                               <i class="' . $icon . ' wcf-pasiv-star"></i>
+                                               <i class="' . $icon . ' wcf-pasiv-star"></i>
+                                               <i class="' . $icon . ' wcf-pasiv-star"></i>
+                                               <i class="' . $icon . ' wcf-pasiv-star"></i>
+                                               <i class="' . $icon . ' wcf-pasiv-star"></i>
                                          </div>
                                          <div class="wpdiscuz-activ-stars" style="width:' . $ratingData['average'] * 100 / 5 . '%;">
-                                               <i class="fa ' . $icon . ' wcf-activ-star"></i>
-                                               <i class="fa ' . $icon . ' wcf-activ-star"></i>
-                                               <i class="fa ' . $icon . ' wcf-activ-star"></i>
-                                               <i class="fa ' . $icon . ' wcf-activ-star"></i>
-                                               <i class="fa ' . $icon . ' wcf-activ-star"></i>
+                                               <i class="' . $icon . ' wcf-active-star"></i>
+                                               <i class="' . $icon . ' wcf-active-star"></i>
+                                               <i class="' . $icon . ' wcf-active-star"></i>
+                                               <i class="' . $icon . ' wcf-active-star"></i>
+                                               <i class="' . $icon . ' wcf-active-star"></i>
                                          </div></div></div><div style="display:inline-block; position:relative;"></div>';
             $html .= '</div>';
             if ($args['itemprop'] && $ratingData['count']) {
-                $html .= '<div style="display: none;" itemprop="aggregateRating" itemscope="" itemtype="http://schema.org/AggregateRating"><meta itemprop="bestRating" content="5"><meta itemprop="worstRating" content="1"><meta itemprop="ratingValue" content="' . $ratingData['average'] . '"><meta itemprop="ratingCount" content="' . $ratingData['count'] . '"></div>';
+                $html .= '<div style="display: none;" itemprop="aggregateRating" itemscope="" itemtype="http://schema.org/AggregateRating"><meta itemprop="itemReviewed" content="' . esc_attr($post->post_title) . '"><meta itemprop="bestRating" content="5"><meta itemprop="worstRating" content="1"><meta itemprop="ratingValue" content="' . $ratingData['average'] . '"><meta itemprop="ratingCount" content="' . $ratingData['count'] . '"></div>';
             }
         }
         return $html;
@@ -336,13 +416,20 @@ class Form {
     private function validateGeneralOptions($options) {
         $validData = array(
             'lang' => get_locale(),
+            'roles_cannot_comment' => array(),
             'guest_can_comment' => 1,
             'show_subscription_bar' => 1,
             'header_text' => '',
             wpdFormConst::WPDISCUZ_META_FORMS_POSTE_TYPES => array(),
             'postid' => '',
-            'postidsArray' => array()
+            'postidsArray' => array(),
+            'show_subscription_agreement' => 0,
+            'subscription_agreement_label' => __('I allow to use my email address and send notification about new comments and replies (you can unsubscribe at any time).', 'wpdiscuz')
         );
+        if (isset($options['roles_cannot_comment'])) {
+            $validData['roles_cannot_comment'] = array_map('trim', $options['roles_cannot_comment']);
+        }
+
         if (isset($options['guest_can_comment'])) {
             $validData['guest_can_comment'] = intval($options['guest_can_comment']);
         }
@@ -355,6 +442,13 @@ class Form {
         if (isset($options['show_subscription_bar'])) {
             $validData['show_subscription_bar'] = intval($options['show_subscription_bar']);
         }
+        if (isset($options['show_subscription_agreement'])) {
+            $validData['show_subscription_agreement'] = intval($options['show_subscription_agreement']);
+        }
+        if (isset($options['subscription_agreement_label']) && trim($options['subscription_agreement_label'])) {
+            $validData['subscription_agreement_label'] = $options['subscription_agreement_label'];
+        }
+
         if (isset($options[wpdFormConst::WPDISCUZ_META_FORMS_POSTE_TYPES])) {
             $validData[wpdFormConst::WPDISCUZ_META_FORMS_POSTE_TYPES] = $options[wpdFormConst::WPDISCUZ_META_FORMS_POSTE_TYPES];
         }
@@ -396,7 +490,11 @@ class Form {
         foreach ($this->formCustomFields as $fieldName => $fieldArgs) {
             $fieldType = $fieldArgs['type'];
             $field = call_user_func($fieldType . '::getInstance');
-            $this->fieldsBeforeSave[$fieldName] = $field->validateFieldData($fieldName, $fieldArgs, $this->wpdOptions, $currentUser);
+            if (isset($fieldArgs['no_insert_meta'])) {
+                $field->validateFieldData($fieldName, $fieldArgs, $this->wpdOptions, $currentUser);
+            } else {
+                $this->fieldsBeforeSave[$fieldName] = $field->validateFieldData($fieldName, $fieldArgs, $this->wpdOptions, $currentUser);
+            }
         }
     }
 
@@ -419,7 +517,7 @@ class Form {
         return $nameField->validateFieldData(wpdFormConst::WPDISCUZ_FORMS_NAME_FIELD, $args, $this->wpdOptions, $currentUser);
     }
 
-    public function validateDefaultWebsit($currentUser) {
+    public function validateDefaultWebsite($currentUser) {
         $webSiteField = Field\DefaultField\Website::getInstance();
         $args = $this->formFields[wpdFormConst::WPDISCUZ_FORMS_WEBSITE_FIELD];
         return $webSiteField->validateFieldData(wpdFormConst::WPDISCUZ_FORMS_WEBSITE_FIELD, $args, $this->wpdOptions, $currentUser);
@@ -434,7 +532,9 @@ class Form {
             if ($top || $bottom) {
                 $htmlExists = true;
             }
-            $output = '<div class="wpd-top-custom-fields">' . $top . '</div>' . $output . '<div class="wpd-bottom-custom-fields">' . $bottom . '</div>';
+            $top = ( $top ) ? '<div class="wpd-top-custom-fields">' . $top . '</div>' : '';
+            $bottom = ( $bottom ) ? '<div class="wpd-bottom-custom-fields">' . $bottom . '</div>' : '';
+            $output = $top . $output . $bottom;
         }
         return $htmlExists;
     }
@@ -442,12 +542,12 @@ class Form {
     private function _renderFrontCommentMetaHtml($meta, $formCustomFields, $loc) {
         $html = '';
         foreach ($formCustomFields as $key => $value) {
-            if ($value['loc'] == $loc) {
+            if (isset($value['loc']) && $value['loc'] == $loc) {
                 $fieldType = $value['type'];
                 $metaValuen = isset($meta[$key][0]) ? maybe_unserialize($meta[$key][0]) : '';
                 if (is_callable($fieldType . '::getInstance') && $metaValuen) {
                     $field = call_user_func($fieldType . '::getInstance');
-                    $html .= $field->frontHtml($metaValuen, $value);
+                    $html .= $field->drawContent($metaValuen, $value);
                 }
             }
         }
@@ -465,37 +565,43 @@ class Form {
         $commentTextMaxLength = intval($this->wpdOptions->commentTextMaxLength);
         $commentTextLengthRange = ($commentTextMinLength && $commentTextMaxLength) ? 'pattern=".{' . $commentTextMinLength . ',' . $commentTextMaxLength . '}"' : '';
         $textareaMaxLength = $commentTextMaxLength ? "maxlength=$commentTextMaxLength" : '';
+        $message = '';
         ?>
         <div class="wc-form-wrapper <?php echo!$isMain ? 'wc-secondary-form-wrapper' : 'wc-main-form-wrapper'; ?>"  <?php echo!$isMain ? "id='wc-secondary-form-wrapper-$uniqueId'  style='display: none;'" : "id='wc-main-form-wrapper-$uniqueId'"; ?> >
             <div class="wpdiscuz-comment-message" style="display: block;"></div>
             <?php if (!$isMain) { ?>
-                <div class="wc-secondary-forms-social-content"></div>
+                <div class="wc-secondary-forms-social-content"><?php do_action('comment_reply_form_bar_top', $this); ?></div><div class="clearfix"></div>
             <?php } ?>
             <?php
-            if ($this->isGuestCanComment($currentUser->ID)) {
+            if ($this->isUserCanComment($currentUser, $message)) {
                 ?>
-                <form class="wc_comm_form <?php echo!$isMain ? 'wc-secondary-form-wrapper' : 'wc_main_comm_form'; ?>" method="post"  enctype="multipart/form-data">
+                <form class="wc_comm_form <?php print $isMain ? 'wc_main_comm_form' : 'wc-secondary-form-wrapper'; ?>" method="post"  enctype="multipart/form-data">
                     <div class="wc-field-comment">
-                        <?php if ($this->wpdOptions->wordpressShowAvatars) { ?>
-                            <?php $authorName = $currentUser->ID ? $currentUser->display_name : 'avatar'; ?>
-                            <div class="wc-field-avatararea">
-                                <?php echo get_avatar($currentUser->ID, 48, '', $authorName); ?>
-                            </div>
-                        <?php } ?>
                         <div class="wpdiscuz-item wc-field-textarea" <?php
                         if (!$this->wpdOptions->wordpressShowAvatars) {
                             echo ' style="margin-left: 0;"';
                         }
                         ?>>
                             <div class="wpdiscuz-textarea-wrap <?php if ($this->wpdOptions->isQuickTagsEnabled) echo 'wpdiscuz-quicktags-enabled'; ?>">
-                                <textarea id="wc-textarea-<?php echo $uniqueId; ?>" <?php echo $commentTextLengthRange . ' ' . $textareaMaxLength; ?> placeholder="<?php echo $textarea_placeholder; ?>" required name="wc_comment" class="wc_comment wpd-field"></textarea>
+
+                                <?php if ($this->wpdOptions->wordpressShowAvatars) { ?>
+                                    <?php $authorName = $currentUser->ID ? $currentUser->display_name : 'avatar'; ?>
+                                    <div class="wc-field-avatararea">
+                                        <?php
+                                        $avatarSize = $isMain ? 40 : 48;
+                                        echo get_avatar($currentUser->ID, $avatarSize, '', $authorName, array('wpdiscuz_current_user' => $currentUser));
+                                        ?>
+                                    </div>
+                                <?php } ?>
+
+                                <textarea id="wc-textarea-<?php echo $uniqueId; ?>" <?php echo $commentTextLengthRange . ' ' . $textareaMaxLength; ?> placeholder="<?php echo $textarea_placeholder; ?>..." required name="wc_comment" class="wc_comment wpd-field"></textarea>
                                 <?php if (intval($this->wpdOptions->commentTextMaxLength)) { ?>
                                     <div class="commentTextMaxLength"><?php echo $this->wpdOptions->commentTextMaxLength; ?></div>
                                 <?php } ?>
                                 <?php if (defined('WPDISCUZ_BOTTOM_TOOLBAR')): ?>
                                     <div class="wpdiscuz-textarea-foot">
-                                        <?php do_action('wpdiscuz_button', $uniqueId, $currentUser); ?>
-                                        <div class="wpdiscuz-button-actions"><?php do_action('wpdiscuz_button_actions', $uniqueId, $currentUser); ?></div>
+                                        <?php do_action('wpdiscuz_button', $uniqueId, $currentUser, $this); ?>
+                                        <div class="wpdiscuz-button-actions"><?php do_action('wpdiscuz_button_actions', $uniqueId, $currentUser, $this); ?></div>
                                     </div>
                                 <?php endif; ?>
                             </div>
@@ -512,17 +618,9 @@ class Form {
                     <div class="clearfix"></div>
                     <input type="hidden" class="wpdiscuz_unique_id" value="<?php echo $uniqueId; ?>" name="wpdiscuz_unique_id">
                 </form>
-            <?php } else { ?>
-                <p class="wc-must-login">
-                    <?php
-                    echo $this->wpdOptions->phrases['wc_you_must_be_text'];
-                    $login = wp_loginout(get_permalink(), false);
-                    $login = preg_replace('!>([^<]+)!is', '>' . $this->wpdOptions->phrases['wc_logged_in_text'], $login);
-                    echo ' ' . $login . ' ' . $this->wpdOptions->phrases['wc_to_post_comment_text'];
-                    ?>
-                </p>
                 <?php
             }
+            do_action('wpdiscuz_form_bottom', $isMain, $this, $currentUser, $commentsCount);
             ?>
         </div>
         <?php
@@ -577,6 +675,8 @@ class Form {
     public function renderFormStructure() {
         $this->initFormMeta();
         ?>
+        <style>.wpd-form-table td{ position: relative;} .wpd-form-table td i.fa-question-circle{ font-size: 16px; right: 15px; top: 15px; position: absolute;} .wpdiscuz-form-builder-help{text-align: right; padding: 5px; font-size: 16px; margin-top: -15px;}</style>
+        <style>[dir=rtl] .wpd-form-table td{ position: relative;} [dir=rtl] .wpd-form-table td i.fa-question-circle{ font-size: 16px; right:auto; left: 15px; top: 15px; position: absolute;} [dir=rtl] .wpdiscuz-form-builder-help{text-align: left; padding: 5px; font-size: 16px; margin-top: -15px;}</style>
         <div class="wpdiscuz-wrapper">
             <div class="wpd-form-options" style="width:100%;">
                 <table class="wpd-form-table" width="100%" border="0" cellspacing="0" cellpadding="0" style="margin:10px 0px 20px 0px;">
@@ -588,6 +688,29 @@ class Form {
                             <td>
                                 <?php $lang = isset($this->generalOptions['lang']) ? $this->generalOptions['lang'] : get_locale(); ?>
                                 <input required="" type="text" name="<?php echo wpdFormConst::WPDISCUZ_META_FORMS_GENERAL_OPTIONS; ?>[lang]" value="<?php echo $lang; ?>" >
+                                <a href="https://wpdiscuz.com/docs/wpdiscuz-documentation/getting-started/custom-comment-form/comment-form-settings/#language" title="<?php _e('Read the documentation', 'wpdiscuz') ?>" target="_blank"><i class="far fa-question-circle"></i></a>
+                            </td>
+                        </tr>                        
+                        <tr>
+                            <th>
+                                <?php _e('Disable commenting for roles', 'wpdiscuz'); ?>
+                            </th>
+                            <td>
+                                <?php
+                                $blogRoles = get_editable_roles();
+                                $rolesCannotComment = isset($this->generalOptions['roles_cannot_comment']) ? $this->generalOptions['roles_cannot_comment'] : array();
+                                foreach ($blogRoles as $role => $info) {
+                                    if ($role != 'administrator') {
+                                        ?>
+                                        <div style="float:left; display:inline-block; padding:3px 5px 3px 7px; min-width:25%;">
+                                            <input type="checkbox" <?php checked(in_array($role, $rolesCannotComment) == true); ?> value="<?php echo $role; ?>" name="<?php echo wpdFormConst::WPDISCUZ_META_FORMS_GENERAL_OPTIONS; ?>[roles_cannot_comment][]" id="wpd-<?php echo $role; ?>" style="margin:0px; vertical-align: middle;" />
+                                            <label for="wpd-<?php echo $role; ?>" style="white-space:nowrap; font-size:13px;"><?php echo $info['name']; ?></label>
+                                        </div>
+                                        <?php
+                                    }
+                                }
+                                ?>
+                                <a href="https://wpdiscuz.com/docs/wpdiscuz-documentation/getting-started/custom-comment-form/comment-form-settings/#disable_commenting_for_roles" title="<?php _e('Read the documentation', 'wpdiscuz') ?>" target="_blank"><i class="far fa-question-circle"></i></a>
                             </td>
                         </tr>
                         <tr>
@@ -598,7 +721,8 @@ class Form {
                                 <?php $guestCanComment = isset($this->generalOptions['guest_can_comment']) ? $this->generalOptions['guest_can_comment'] : 1; ?>
                                 <input <?php checked($guestCanComment, 1, true); ?> type="radio" name="<?php echo wpdFormConst::WPDISCUZ_META_FORMS_GENERAL_OPTIONS; ?>[guest_can_comment]" value="1" id="wpd_cf_guest_yes" > <label for="wpd_cf_guest_yes"><?php _e('Yes', 'wpdiscuz'); ?></label>
                                 &nbsp; 
-                                <input <?php checked($guestCanComment, 0, true); ?> type="radio" name="<?php echo wpdFormConst::WPDISCUZ_META_FORMS_GENERAL_OPTIONS; ?>[guest_can_comment]" value="0" id="wpd_cf_guest_no"> <label for="wpd_cf_guest_no"><?php _e('No', 'wpdiscuz'); ?></label> 
+                                <input <?php checked($guestCanComment, 0, true); ?> type="radio" name="<?php echo wpdFormConst::WPDISCUZ_META_FORMS_GENERAL_OPTIONS; ?>[guest_can_comment]" value="0" id="wpd_cf_guest_no"> <label for="wpd_cf_guest_no"><?php _e('No', 'wpdiscuz'); ?></label>
+                                <a href="https://wpdiscuz.com/docs/wpdiscuz-documentation/getting-started/custom-comment-form/comment-form-settings/#only-loggedin" title="<?php _e('Read the documentation', 'wpdiscuz') ?>" target="_blank"><i class="far fa-question-circle"></i></a>
                             </td>
                         </tr>
                         <tr>
@@ -610,7 +734,29 @@ class Form {
                                 <input <?php checked($showSubscriptionBar, 1, true); ?> type="radio" name="<?php echo wpdFormConst::WPDISCUZ_META_FORMS_GENERAL_OPTIONS; ?>[show_subscription_bar]" value="1" id="wpd_cf_sbbar_yes" > <label for="wpd_cf_sbbar_yes"><?php _e('Yes', 'wpdiscuz'); ?></label>
                                 &nbsp; 
                                 <input <?php checked($showSubscriptionBar, 0, true); ?> type="radio" name="<?php echo wpdFormConst::WPDISCUZ_META_FORMS_GENERAL_OPTIONS; ?>[show_subscription_bar]" value="0" id="wpd_cf_sbbar_no"> <label for="wpd_cf_sbbar_no"><?php _e('No', 'wpdiscuz'); ?></label>
+                                <a href="https://wpdiscuz.com/docs/wpdiscuz-documentation/getting-started/custom-comment-form/comment-form-settings/#subscription-bar" title="<?php _e('Read the documentation', 'wpdiscuz') ?>" target="_blank"><i class="far fa-question-circle"></i></a>
                             </td>
+                        <tr>
+                            <th>
+                                <?php _e('Display agreement checkbox in Comment Subscription bar', 'wpdiscuz'); ?>
+                            </th>
+                            <td>
+                                <?php $showSubscriptionAgreement = isset($this->generalOptions['show_subscription_agreement']) ? $this->generalOptions['show_subscription_agreement'] : 0; ?>
+                                <input <?php checked($showSubscriptionAgreement, 1, true); ?> type="radio" name="<?php echo wpdFormConst::WPDISCUZ_META_FORMS_GENERAL_OPTIONS; ?>[show_subscription_agreement]" value="1" id="wpd_cf_sbbar_agreement_yes" > <label for="wpd_cf_sbbar_agreement_yes"><?php _e('Yes', 'wpdiscuz'); ?></label>
+                                &nbsp; 
+                                <input <?php checked($showSubscriptionAgreement, 0, true); ?> type="radio" name="<?php echo wpdFormConst::WPDISCUZ_META_FORMS_GENERAL_OPTIONS; ?>[show_subscription_agreement]" value="0" id="wpd_cf_sbbar_agreement_no"> <label for="wpd_cf_sbbar_agreement_no"><?php _e('No', 'wpdiscuz'); ?></label>
+                                <a href="https://wpdiscuz.com/docs/wpdiscuz-documentation/getting-started/custom-comment-form/comment-form-settings/#sb-checkbox" title="<?php _e('Read the documentation', 'wpdiscuz') ?>" target="_blank"><i class="far fa-question-circle"></i></a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                <?php _e('Comment Subscription bar agreement checkbox label', 'wpdiscuz'); ?>
+                            </th>
+                            <td>
+                                <?php $subscriptionAgreementLabel = isset($this->generalOptions['subscription_agreement_label']) && $this->generalOptions['subscription_agreement_label'] ? $this->generalOptions['subscription_agreement_label'] : __('I allow to use my email address and send notification about new comments and replies (you can unsubscribe at any time).', 'wpdiscuz'); ?>
+                                <textarea name="<?php echo wpdFormConst::WPDISCUZ_META_FORMS_GENERAL_OPTIONS; ?>[subscription_agreement_label]" style="width:80%;"><?php echo $subscriptionAgreementLabel; ?></textarea>
+                            </td>
+                        </tr>
                         </tr>
                         <tr>
                             <th>
@@ -619,6 +765,7 @@ class Form {
                             <td >
                                 <div>
                                     <input  type="text" name="<?php echo wpdFormConst::WPDISCUZ_META_FORMS_GENERAL_OPTIONS; ?>[header_text]" placeholder="<?php _e('Leave a Reply', 'wpdiscuz'); ?>" value="<?php echo isset($this->generalOptions['header_text']) ? $this->generalOptions['header_text'] : __('Leave a Reply', 'wpdiscuz'); ?>" style="width:80%;">
+                                    <a href="https://wpdiscuz.com/docs/wpdiscuz-documentation/getting-started/custom-comment-form/comment-form-settings/#comment_form_header_text" title="<?php _e('Read the documentation', 'wpdiscuz') ?>" target="_blank"><i class="far fa-question-circle"></i></a>
                                 </div>
                             </td>
                         </tr>
@@ -648,6 +795,7 @@ class Form {
                                     </label>
                                 <?php } ?>
                                 <?php if ($hasForm) echo $formRelExistsInfo; ?>
+                                <a href="https://wpdiscuz.com/docs/wpdiscuz-documentation/getting-started/custom-comment-form/comment-form-settings/#post-types" title="<?php _e('Read the documentation', 'wpdiscuz') ?>" target="_blank"><i class="far fa-question-circle"></i></a>
                             </td>
                         </tr>
                         <tr>
@@ -655,12 +803,16 @@ class Form {
                                 <?php _e('Display comment form for post IDs', 'wpdiscuz'); ?>
                                 <p class="wpd-info"> <?php _e('You can use this form for certain posts/pages specified by comma separated IDs.', 'wpdiscuz'); ?></p>
                             </th>
-                            <td><input type="text" name="<?php echo wpdFormConst::WPDISCUZ_META_FORMS_GENERAL_OPTIONS; ?>[postid]" placeholder="5,26,30..." value="<?php echo isset($this->generalOptions['postid']) ? $this->generalOptions['postid'] : ''; ?>" style="width:80%;"></td>
+                            <td>
+                                <input type="text" name="<?php echo wpdFormConst::WPDISCUZ_META_FORMS_GENERAL_OPTIONS; ?>[postid]" placeholder="5,26,30..." value="<?php echo isset($this->generalOptions['postid']) ? $this->generalOptions['postid'] : ''; ?>" style="width:80%;">
+                                <a href="https://wpdiscuz.com/docs/wpdiscuz-documentation/getting-started/custom-comment-form/comment-form-settings/#comment_form_for_post_id" title="<?php _e('Read the documentation', 'wpdiscuz') ?>" target="_blank"><i class="far fa-question-circle"></i></a>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             <div class="wpdiscuz-wrapper">
+                <div class="wpdiscuz-form-builder-help"><a href="https://wpdiscuz.com/docs/wpdiscuz-documentation/getting-started/custom-comment-form/comment-form-builder/" title="<?php _e('Read the documentation', 'wpdiscuz') ?>" target="_blank"><i class="far fa-question-circle"></i></a></div>
                 <div class="wpd-form">
                     <div class="wpd-col-wrap">
                         <div class="wpd-field">
@@ -679,7 +831,7 @@ class Form {
                         ?>
                     </div>
                     <div id="wpdiscuz_form_add_row" class="wpd-field wpd-field-add" style="width:100%; padding:20px; margin:20px 0px; cursor:pointer;" title="Add new custom field">
-                        <div class="wpd-field-head-new"><i class="fa fa-plus-circle"></i> <?php _e('ADD ROW', 'wpdiscuz'); ?></div>
+                        <div class="wpd-field-head-new"><i class="fas fa-plus-circle"></i> <?php _e('ADD ROW', 'wpdiscuz'); ?></div>
                     </div>
                     <div style="clear:both;"></div>
                 </div>
@@ -688,13 +840,38 @@ class Form {
         <?php
     }
 
-    private function isGuestCanComment($isUserLoggedIn) {
-        $user_can_comment = TRUE;
-        if (!$this->generalOptions['guest_can_comment']) {
-            if (!$isUserLoggedIn) {
+    public function isUserCanComment($currentUser, $postId = 0, &$message = '') {
+        global $post;
+        if (!$post) {
+            $post = get_post($postId);
+        }
+        $user_can_comment = true;
+        $this->initFormMeta();
+        if ($currentUser && $currentUser->ID) {
+            if ($post->post_author && $post->post_author != $currentUser->ID && $currentUser->roles && is_array($currentUser->roles)) {
+                $postId = $post && isset($post->ID) ? $post->ID : $postId;
+                $this->generalOptions['roles_cannot_comment'] = isset($this->generalOptions['roles_cannot_comment']) ? $this->generalOptions['roles_cannot_comment'] : array();
+                foreach ($currentUser->roles as $role) {
+                    if (in_array($role, $this->generalOptions['roles_cannot_comment'])) {
+                        //Filter hook to add extra conditions in user role dependent restriction.
+                        $user_can_comment = apply_filters('wpdiscuz_user_role_can_comment', false, $role);
+                        $message = $this->wpdOptions->phrases['wc_roles_cannot_comment_message'];
+                        break;
+                    }
+                }
+            }
+        } else {
+            $user_can_comment = $this->generalOptions['guest_can_comment'];
+        }
+        if ($user_can_comment && class_exists('WooCommerce') && get_post_type($postId) == 'product') {
+            if (get_option('woocommerce_review_rating_verification_required') === 'no' || wc_customer_bought_product('', get_current_user_id(), $postId)) {
+                $user_can_comment = TRUE;
+            } else {
                 $user_can_comment = FALSE;
+                $message = '<p class="woocommerce-verification-required">' . __('Only logged in customers who have purchased this product may leave a review.', 'woocommerce') . '</p>';
             }
         }
+        $this->isUserCanComment = $user_can_comment;
         return $user_can_comment;
     }
 
@@ -712,21 +889,21 @@ class Form {
                     'type' => 'wpdFormAttr\Field\DefaultField\Name',
                     'name' => __('Name', 'wpdiscuz'),
                     'desc' => '',
-                    'icon' => 'fa-user',
+                    'icon' => 'fas fa-user',
                     'required' => '1'
                 ),
                 wpdFormConst::WPDISCUZ_FORMS_EMAIL_FIELD => array(
                     'type' => 'wpdFormAttr\Field\DefaultField\Email',
                     'name' => __('Email', 'wpdiscuz'),
                     'desc' => '',
-                    'icon' => 'fa-at',
+                    'icon' => 'fas fa-at',
                     'required' => '1'
                 ),
                 wpdFormConst::WPDISCUZ_FORMS_WEBSITE_FIELD => array(
                     'type' => 'wpdFormAttr\Field\DefaultField\Website',
                     'name' => __('Website', 'wpdiscuz'),
                     'desc' => '',
-                    'icon' => 'fa-link',
+                    'icon' => 'fas fa-link',
                     'enable' => '1'
                 ),
             ),
@@ -735,7 +912,7 @@ class Form {
                     'type' => 'wpdFormAttr\Field\DefaultField\Captcha',
                     'name' => __('Code', 'wpdiscuz'),
                     'desc' => '',
-                    'show_for_guests' => '1',
+                    'show_for_guests' => '0',
                     'show_for_users' => '0'
                 ),
                 wpdFormConst::WPDISCUZ_FORMS_SUBMIT_FIELD => array(
@@ -757,7 +934,9 @@ class Form {
             if (isset($contentType[$type][$lang]) && $contentType[$type][$lang]) {
                 $existsFormID = $contentType[$type][$lang];
                 $generalOptions = get_post_meta($existsFormID, wpdFormConst::WPDISCUZ_META_FORMS_GENERAL_OPTIONS, true);
-                unset($generalOptions[wpdFormConst::WPDISCUZ_META_FORMS_POSTE_TYPES][$type]);
+                if (!empty($generalOptions)) {
+                    unset($generalOptions[wpdFormConst::WPDISCUZ_META_FORMS_POSTE_TYPES][$type]);
+                }
                 update_post_meta($existsFormID, wpdFormConst::WPDISCUZ_META_FORMS_GENERAL_OPTIONS, $generalOptions);
             }
             $contentType[$type][$lang] = $this->formID;
@@ -777,6 +956,9 @@ class Form {
             if (isset($ids[$id]) && $ids[$id]) {
                 $existsFormID = $ids[$id];
                 $generalOptions = get_post_meta($existsFormID, wpdFormConst::WPDISCUZ_META_FORMS_GENERAL_OPTIONS, true);
+                if (!$generalOptions) {
+                    $generalOptions = array('postidsArray' => array());
+                }
                 foreach ($generalOptions['postidsArray'] as $key => $pid) {
                     if ($pid == $id) {
                         unset($generalOptions['postidsArray'][$key]);
@@ -792,6 +974,7 @@ class Form {
 
     public function transferJSData($data) {
         $this->initFormFields();
+
         $data['wc_captcha_show_for_guest'] = $this->formFields[wpdFormConst::WPDISCUZ_FORMS_CAPTCHA_FIELD]['show_for_guests'];
         $data['wc_captcha_show_for_members'] = $this->formFields[wpdFormConst::WPDISCUZ_FORMS_CAPTCHA_FIELD]['show_for_users'];
         $data['is_email_field_required'] = $this->formFields[wpdFormConst::WPDISCUZ_FORMS_EMAIL_FIELD]['required'];

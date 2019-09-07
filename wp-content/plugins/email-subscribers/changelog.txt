@@ -4,9 +4,220 @@ Author		: Icegram
 Author URI	: https://www.icegram.com/
 License		: GPLv3
 
+*******************************************************Version3.5.18******************************************************
+
+* Fix: Double Opt in subscription link is not working with email having "+" sign
+
+*******************************************************Version 3.5.17******************************************************
+
+* Update: Now, email subscription limit also check for non admin users.
+
+*******************************************************Version 3.5.16******************************************************
+
+* Fix: spam subscription issue.
+* Fix: Visitors were not able to subscribe.
+
+*******************************************************Version 3.5.15******************************************************
+
+* Fix: Extra field shown for forms on RTL sites
+
+*******************************************************Version 3.5.14******************************************************
+
+* Fix: Improve prevention of spam signups
+
+*******************************************************Version 3.5.13******************************************************
+
+* Fix: “Oops, an unexpected error occurred” while subscribing 
+* Update: Added shortcode support in email templates [learn more](https://www.icegram.com/documentation/why-some-shortcodes-are-not-working-in-email-templates)
+
+*******************************************************Version 3.5.12******************************************************
+
+* Fix: Invalid unsubscribe link
+* Update: Use string instead of constant for Text Domain.
+
+*******************************************************Version 3.5.11******************************************************
+
+* Fix: Send test newsletter to "Test" group on update
+
+*******************************************************Version 3.5.10******************************************************
+
+* Fix: Prevent spam signups
+
+*******************************************************Version 3.5.9******************************************************
+
+* Fix: Opt-In Confirmation and Unsubscribe link not working after server migration.
+
+*******************************************************Version 3.5.8******************************************************
+
+* Update: Added "Test Email" functionality to confirm email deliverability.
+
+*******************************************************Version 3.5.7******************************************************
+
+* Fix: Post notification sent to multiple times.
+* Update: POT file
+* Localization: Made all translation files up-to-date with latest POT file
+
+************************************************************Version 3.5.6************************************************************
+
+* Update: POT file
+* Localization: Made all translation files up-to-date with latest POT file
+
+************************************************************Version 3.5.5************************************************************
+
+* Enhancment : Improved onboarding 
+* Fix: "Notice: get_currentuserinfo is deprecated"
+* Fix: Import CSV not working if list contains only one record
+
+************************************************************Version 3.5.4************************************************************
+
+* New: Added option to disable cron email sent to Admin
+* Fix: 'Optimize Table & Delete Records' button not deleting any reports
+* Fix: 'In Queue' notice showing multiple times on Reports tab
+* Update: Sent Report email will be now sent only if sending email immediately
+* Update: POT file
+* Localization: Made all translation files up-to-date with latest POT file
+
+************************************************************Version 3.5.3************************************************************
+
+* Fix: Notices on Subscribers -> Sync page (Illegal string offset ‘es_registered’ & ‘es_registered_group’)
+* Update: Use of $wpdb->prepare for direct queries to the database
+* Update: Text improvements while creating/editing post notification
+* Update: POT file
+* Localization: Translation for Swedish (sv_SE) language updated (Thanks to Rune Svennelid)
+* Localization: Made all translation files up-to-date with latest POT file
+
+************************************************************Version 3.5.2************************************************************
+
+* Update: Show list of available keywords based on template type while editing a template
+* Update: Increased 'maxlength' for name and email field in the subscription form
+* Update: Single subscription form for widget, shortcode and php code
+* Update: Added text domain for missing texts
+* Update: POT file
+* Localization: Translation for Polish (pl_PL) language updated (Thanks to Witold)
+* Localization: Translation for German Deutsch (de_DE) language updated (Thanks to Zero & Markus Buschmann)
+* Localization: Made all translation files up-to-date with latest POT file
+
+************************************************************Version 3.5.1************************************************************
+
+* Update: Privacy Policy page link on Help & Info page
+* Update: POT file
+* Localization: Made all translation files up-to-date with latest POT file
+* Localization: Translation for Lithuanian (lt_LT) language removed
+* Tweak: Notice for admin on Reports page if Cron job is 'In Queue'
+
+************************************************************Version 3.5.0************************************************************
+
+* New: [GDPR] Provision for consent checkbox in the subscription form [Steps to enable it](https://www.icegram.com/documentation/es-gdpr-how-to-enable-consent-checkbox-in-the-subscription-form/)
+* New: Keyword {{POSTEXCERPT}} for showing Post Excerpt in Post Notification emails
+* Fix: Missing santization in preview template (Thanks to Chris Liu)
+* Update: Doc links in plugin on Help & Info page
+* Update: POT file
+* Localization: Translation for German Deutsch (de_DE) language updated (Thanks to Markus Buschmann)
+* Localization: Translation for Italian (it_IT) language updated (Thanks to Roberto Pavesi)
+* Localization: Translation for Spanish (es_ES) language updated (Thanks to David Bravo)
+* Localization: Translation for Polish (pl_PL) language updated (Thanks to Witold)
+* Localization: Translation for Turkish (tr_TR) language updated (Thanks to Erkan ORUÇ)
+* Localization: Made all translation files up-to-date with latest POT file
+* Localization: Translation for Czech (cs_CZ) language removed
+
+************************************************************Version 3.4.12************************************************************
+
+* Fix: Some users getting 'Invalid email address' for valid email address during form submission
+* Fix: Empty email field not showing validation errors during form submission
+* Update: Make email field required in the subscribe form
+* Update: Remove extra error notices
+* Update: POT file
+* Localization: Translation for German Deutsch (de_DE) language updated (Thanks to Markus Buschmann)
+* Localization: Made all translation files up-to-date with latest POT file
+
+************************************************************Version 3.4.11************************************************************
+
+* Fix: Special characters in the post title showing as html entities when using {{POSTTITLE}} keyword [due to `get_the_title($post)`]
+* Fix: 'Oops.. Unexpected error occurred 0.' in Email Subscribers - Group Selector form when subscriber status is unconfirmed or unsubscribed
+
+************************************************************Version 3.4.10************************************************************
+
+* New: Improvements in the subscribe form
+* New: Improvements in the form submission process
+* Fix: Prevent spam signups
+* Update: POT file
+* Localization: Made all translation files up-to-date with latest POT file
+
+************************************************************Version 3.4.9************************************************************
+
+* New: Show Viewed email count from total sent emails in Delivery Reports
+* New: Use `get_the_title($post)` for getting post title to make it extendable
+* New: Inform users that default post notifications are enabled by default
+* Fix: Prevent spam signups
+* Fix: Double header MIME Type and X-Mailer in wp_mail() causing email to bounce in some cases
+* Update: Text improvements in unsubscribe link (New users only)
+* Update: Show upgrade notice for Pro plugin only if Pro plugin is not activated
+* Update: POT file
+* Localization: Translation for Polish (pl_PL) language updated (Thanks to Witold)
+* Localization: Translation for German Deutsch (de_DE) language updated (Thanks to Markus Buschmann)
+* Localization: Made all other translation files up-to-date with latest POT file
+
+************************************************************Version 3.4.8************************************************************
+
+* Fix: Security vulnerability (Thanks to Dominykas Gelucevicius from [ThreatPress Security](https://profiles.wordpress.org/threatpress))
+* Update: Only site administrator will be able to export list of subscribers
+* Update: POT file
+* Localization: Translation for German (de_DE) language updated (Thanks to Markus Buschmann)
+* Localization: Made all other translation files up-to-date with latest POT file
+* Tweak: Doc link addition for newsletter keywords while creating/updating a template
+
+************************************************************Version 3.4.7************************************************************
+
+* Fix: Empty email with only unsubscribe links sent to subscribers
+* Fix: Remove usage of rawurlencode() to prevent broken subscribe & unsubscribe links
+* Update: Removed the functionality to subscribe emails with special characters
+* Update: Change in logic for updating subscribers information in subscribers dashboard
+* Update: POT file
+* Localization: Translation for Italian (it_IT) language added (Thanks to  Roberto Pavesi)
+* Localization: Translation for German (de_DE) language updated (Thanks to Markus Buschmann)
+* Localization: Translation for Polish (pl_PL) language updated (Thanks to Witold)
+* Localization: Made all other translation files up-to-date with latest POT file
+
+************************************************************Version 3.4.6************************************************************
+
+* Fix: Fatal error while accessing subscribers export screen
+
+************************************************************Version 3.4.5************************************************************
+
+* Fix: Not throwing 'Invalid Email' error for sanitized emails
+* Fix: Showing 'Resend Confirmation' for confirmed emails
+* Fix: '\n' showing in alert notice
+* Update: Use term 'Templates' instead of 'Compose' in plugin
+* Update: Code cleanup
+* Update: POT file
+* Localization: Made all translation files up-to-date with latest POT file
+
+************************************************************Version 3.4.4************************************************************
+
+* New: Introducing [Email Subscribers Pro](https://www.icegram.com/email-subscribers-pricing/) plan
+* Update: Change in logic for showing subscribers in subscribers dashboard
+
+************************************************************Version 3.4.3************************************************************
+
+* Fix: Templates showing up in frontend search results
+* Update: Documentation links on Help & Info page
+* Update: POT file
+* Localization: Made all translation files up-to-date with latest POT file
+
+************************************************************Version 3.4.2************************************************************
+
+* Fix: User roles not working
+* Fix: Viewed Status in Reports not updating after an email is opened
+* Fix: Preview Template button not redirecting to correct page while previewing
+* Update: Keyword structure display for Name & Email in preview
+* Update: Thumbnail image on Templates
+* Update: POT file
+* Localization: Made all translation files up-to-date with latest POT file
+* Localization: Translation for Portuguese-Brazil (pt_BR) language added (Thanks to Marcelo de Meneses Guedes)
+
 ************************************************************Version 3.4.1************************************************************
 
-* Fix: Fatal error: Can’t use function return value in write context
+* Fix: Fatal error: Can’t use function return
 
 ************************************************************Version 3.4.0************************************************************
 
@@ -364,7 +575,7 @@ License		: GPLv3
 
 * Tested upto 4.3
 * Option available to add same email address to multiple group name
-* Cron Mail option added. With this option you can schedule cron jobs for newsletter and notification emails. Using this cron option you can schedule mail (example 100 mails per hour)
+* Cron Mail option added. With this option you can schedule cron jobs `sletter and notification emails. Using this cron option you can schedule mail (example 100 mails per hour)
 * Group Name added in the export list.
 * Mail Type option has been added in the Send Mail admin page. With this option you can add the mails into cron job or you can send the mail immediately.
 * Notification Status option has been added in the notification setup page. With this option you can add notification mails into cron job or you can send the mail immediately when new post is published.

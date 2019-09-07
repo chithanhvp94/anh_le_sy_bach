@@ -1,8 +1,10 @@
 <?php
-include_once 'autoload.php';
+include_once WPDISCUZ_DIR_PATH . '/forms/autoload.php';
 
 use wpdFormAttr\FormConst\wpdFormConst;
 use wpdFormAttr\Form;
+use wpdFormAttr\Login\SocialLogin;
+use wpdFormAttr\Tools\PersonalDataExporter;
 
 class wpDiscuzForm implements wpdFormConst {
 
@@ -18,16 +20,18 @@ class wpDiscuzForm implements wpdFormConst {
         $this->options = $options;
         $this->pluginVersion = $pluginVersion;
         $this->form = new Form($this->options);
-        $this->initAdminPhrazes();
+        $this->initAdminPhrases();
         $this->formContentTypeRel = $options->formContentTypeRel;
         $this->formPostRel = $options->formPostRel;
+        SocialLogin::getInstance($this->options);
+        
         add_action('init', array(&$this, 'registerPostType'), 1);
         add_action('admin_init', array(&$this, 'custoFormRoleCaps'), 999);
         add_action('admin_menu', array(&$this, 'addFormToAdminMenu'), 874);
         add_action('admin_enqueue_scripts', array(&$this, 'customFormAdminScripts'), 245);
         add_action('manage_wpdiscuz_form_posts_custom_column', array(&$this, 'displayContentTypesOnList'), 10, 2);
         add_filter('manage_wpdiscuz_form_posts_columns', array(&$this, 'addContentTypeColumn'));
-        add_action('edit_form_after_title', array(&$this, 'renderFormeGeneralSettings'));
+        add_action('edit_form_after_title', array(&$this, 'renderFormGeneralSettings'));
         add_action('wp_ajax_wpdiscuzCustomFields', array(&$this, 'wpdiscuzFieldsDialogContent'));
         add_action('wp_ajax_adminFieldForm', array(&$this, 'adminFieldForm'));
         add_action('transition_comment_status', array(&$this, 'changeCommentStatus'), 10, 3);
@@ -52,6 +56,12 @@ class wpDiscuzForm implements wpdFormConst {
         add_filter('the_content', array(&$this->form, 'displayRatingMeta'), 10);
         add_shortcode('wpdrating', array(&$this->form, 'getRatingMetaHtml'));
         add_action('admin_notices', array(&$this, 'formExists'));
+        add_action('wp_loaded', array(&$this, 'initPersonalDataExporter'));
+    }
+    
+    
+    public function initPersonalDataExporter() {
+        PersonalDataExporter::getInstance($this->options);
     }
 
     public function validateMetaCommentSavePre($commentContent) {
@@ -59,7 +69,7 @@ class wpDiscuzForm implements wpdFormConst {
             $postID = filter_input(INPUT_POST, 'comment_post_ID', FILTER_SANITIZE_NUMBER_INT);
             $this->getForm($postID);
             if ($this->form) {
-                $currentUser = wp_get_current_user();
+                $currentUser = WpdiscuzHelper::getCurrentUser();
                 $this->form->initFormFields();
                 $this->form->validateFields($currentUser);
             }
@@ -171,9 +181,9 @@ class wpDiscuzForm implements wpdFormConst {
     public function customFormAdminScripts() {
         global $current_screen;
         if ($current_screen->id == self::WPDISCUZ_FORMS_CONTENT_TYPE) {
-            wp_register_style('fontawesome-iconpicker-css', plugins_url(WPDISCUZ_DIR_NAME . '/assets/third-party/fontawesome-iconpicker/css/fontawesome-iconpicker.min.css'), array(), '1.0.0');
+            wp_register_style('fontawesome-iconpicker-css', plugins_url(WPDISCUZ_DIR_NAME . '/assets/third-party/fontawesome-iconpicker/css/fontawesome-iconpicker.min.css'), array(), '1.12.1');
             wp_enqueue_style('fontawesome-iconpicker-css');
-            wp_register_script('fontawesome-iconpicker-js', plugins_url(WPDISCUZ_DIR_NAME . '/assets/third-party/fontawesome-iconpicker/js/fontawesome-iconpicker.min.js'), array('jquery'), '1.0.0', true);
+            wp_register_script('fontawesome-iconpicker-js', plugins_url(WPDISCUZ_DIR_NAME . '/assets/third-party/fontawesome-iconpicker/js/fontawesome-iconpicker.js'), array('jquery'), '1.12.1', true);
             wp_enqueue_script('fontawesome-iconpicker-js');
             wp_register_style('wpdiscuz-custom-form-css', plugins_url(WPDISCUZ_DIR_NAME . '/assets/css/wpdiscuz-custom-form.css'), array(), $this->pluginVersion);
             wp_enqueue_style('wpdiscuz-custom-form-css');
@@ -192,7 +202,7 @@ class wpDiscuzForm implements wpdFormConst {
         }
     }
 
-    public function renderFormeGeneralSettings($post) {
+    public function renderFormGeneralSettings($post) {
         global $current_screen;
         if ($current_screen->id == self::WPDISCUZ_FORMS_CONTENT_TYPE) {
             $this->form->setFormID($post->ID);
@@ -202,11 +212,11 @@ class wpDiscuzForm implements wpdFormConst {
 
     public function wpdiscuzFieldsDialogContent() {
         $this->canManageOptions();
-        include_once 'wpdFormAttr/html/admin-form-fields-list.php';
+        include_once WPDISCUZ_DIR_PATH . '/forms/wpdFormAttr/html/admin-form-fields-list.php';
         wp_die();
     }
 
-    private function initAdminPhrazes() {
+    private function initAdminPhrases() {
         $this->wpdFormAdminOptions = array(
             'wpdiscuz_form_structure' => wpdFormConst::WPDISCUZ_META_FORMS_STRUCTURE,
             'wpd_form_fields' => __('Field Types', 'wpdiscuz'),
@@ -282,9 +292,9 @@ class wpDiscuzForm implements wpdFormConst {
         $formID = 0;
         if (!$this->form->getFormID()) {
             $postType = get_post_type($postID);
-            if (key_exists($postID, $this->formPostRel)) {
+            if (isset($this->formPostRel[$postID])) {
                 $formID = $this->formPostRel[$postID];
-            } elseif (is_string($postType) && key_exists($postType, $this->formContentTypeRel)) {
+            } elseif (is_string($postType) && isset($this->formContentTypeRel[$postType])) {
                 $tempContentTypeRel = $this->formContentTypeRel[$postType];
                 $defaultFormID = array_shift($tempContentTypeRel);
                 $lang = get_locale();
@@ -292,7 +302,7 @@ class wpDiscuzForm implements wpdFormConst {
             }
             $this->form->setFormID($formID);
         }
-        return $this->form;
+        return apply_filters('wpdiscuz_get_form',$this->form);
     }
 
     public function formCustomCssMetabox() {
@@ -364,6 +374,7 @@ class wpDiscuzForm implements wpdFormConst {
             $postTypes = array(
                 'post' => 'post',
                 'attachment' => 'attachment',
+                'page' => 'page',
             );
             $this->options->initPhrasesOnLoad();
             $generalOptions = $this->getDefaultFormGeneralOptions($version, $lang, $wpdGeneralOptions, $phrases, $postTypes);
@@ -381,6 +392,7 @@ class wpDiscuzForm implements wpdFormConst {
     private function getDefaultFormGeneralOptions($version, $lang, $wpdGeneralOptions, $phrases, &$postTypes) {
         $generalOptions = array(
             'lang' => $lang,
+            'roles_cannot_comment' => array(),
             'guest_can_comment' => get_option('comment_registration') ? 0 : 1,
             'show_subscription_bar' => 1,
             'header_text' => __('Leave a Reply', 'wpdiscuz'),
@@ -484,7 +496,7 @@ class wpDiscuzForm implements wpdFormConst {
     public function deleteCommentRating($commentId) {
         $rating = get_comment_meta($commentId, 'rating', true);
         $comment = get_comment($commentId);
-        if ($rating && $comment->comment_approved == 1) {
+        if ($rating && $comment->comment_approved === '1') {
             $this->updatePostRating($comment, -1);
         }
     }
@@ -499,7 +511,7 @@ class wpDiscuzForm implements wpdFormConst {
     }
 
     private function updatePostRating($comment, $difference) {
-        $postRatings = get_post_meta($comment->comment_post_ID, 'wpdiscuz_rating_count', true);
+        $postRatings = get_post_meta($comment->comment_post_ID, self::WPDISCUZ_RATING_COUNT, true);
         $form = $this->getForm($comment->comment_post_ID);
         $form->initFormFields();
         $formFields = $form->getFormFields();
@@ -508,13 +520,16 @@ class wpDiscuzForm implements wpdFormConst {
                 $postRatings = $this->chagePostSingleRating($key, $comment->comment_ID, $difference, $postRatings);
             }
         }
-        update_post_meta($comment->comment_post_ID, 'wpdiscuz_rating_count', $postRatings);
+        update_post_meta($comment->comment_post_ID, self::WPDISCUZ_RATING_COUNT, $postRatings);
     }
 
     private function chagePostSingleRating($metaKey, $commentID, $difference, $postRatings) {
         $commentFieldRating = get_comment_meta($commentID, $metaKey, true);
-        if (key_exists($metaKey, $postRatings) && $commentFieldRating) {
-            if (key_exists($commentFieldRating, $postRatings[$metaKey])) {
+        if(!$postRatings){
+            $postRatings = array($metaKey => array());
+        }
+        if ($commentFieldRating) {
+            if (isset($postRatings[$metaKey][$commentFieldRating])) {
                 $postRatings[$metaKey][$commentFieldRating] = $postRatings[$metaKey][$commentFieldRating] + $difference;
             } else {
                 $postRatings[$metaKey][$commentFieldRating] = $difference;

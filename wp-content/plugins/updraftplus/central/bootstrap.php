@@ -80,7 +80,7 @@ class UpdraftPlus_UpdraftCentral_Main {
 			}
 		}
 		
-		echo '</p><p><a href="#" onclick="window.close();">'.__('Close...', 'updraftplus').'</a></p>';
+		echo '</p><p><a href="'.UpdraftPlus::get_current_clean_url().'" onclick="window.close();">'.__('Close...', 'updraftplus').'</a></p>';
 		die;
 	}
 	
@@ -111,7 +111,7 @@ class UpdraftPlus_UpdraftCentral_Main {
 		}
 		
 		$our_keys[$updraft_key_index]['publickey_remote'] = base64_decode($_GET['public_key']);
-		UpdraftPlus_Options::update_updraft_option('updraft_central_localkeys', $our_keys);
+		UpdraftPlus_Options::update_updraft_option('updraft_central_localkeys', $our_keys, true, 'no');
 		
 		return array('responsetype' => 'ok', 'code' => 'ok');
 	}
@@ -173,7 +173,7 @@ class UpdraftPlus_UpdraftCentral_Main {
 	 * @param array $params which have action, subaction and nonce
 	 * @return array which contains log_contents. If error, Returns array which contains fatal_error flag and fatal_error_message
 	 */
-	public function get_log($params) {
+	public function get_log($params) {// phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
 	
 		$udrpc_log = get_site_option('updraftcentral_client_log');
 		if (!is_array($udrpc_log)) $udrpc_log = array();
@@ -255,7 +255,7 @@ class UpdraftPlus_UpdraftCentral_Main {
 			if ('__updraftpluscom' != $where_send) {
 				$created['keys_guide'] .= '<div class="updraftcentral_wizard_success"><p>'.sprintf(__('You now need to copy the key below and enter it at your %s.', 'updraftplus'), '<a href="'.$where_send.'" target="_blank">UpdraftCentral dashboard</a>').'</p><p>'.__('At your UpdraftCentral dashboard you should press the "Add Site" button then paste the key in the input box.', 'updraftplus').'</p><p>'.sprintf(__('Detailed instructions for this can be found at %s', 'updraftplus'), '<a target="_blank" href="https://updraftplus.com/updraftcentral-how-to-add-a-site/">UpdraftPlus.com</a>').'</p></div>';
 			} else {
-				$created['keys_guide'] .= '<div class="updraftcentral_wizard_success"><p>'. sprintf(__('You can now control this site via your UpdraftCentral dashboard at %s.', 'updraftplus'), '<a target="_blank" href="http://updraftplus.com/my-account/remote-control/">UpdraftPlus.com</a>').'</p></div>';
+				$created['keys_guide'] .= '<div class="updraftcentral_wizard_success"><p>'. sprintf(__('You can now control this site via your UpdraftCentral dashboard at %s.', 'updraftplus'), '<a target="_blank" href="https://updraftplus.com/my-account/updraftcentral-remote-control/">UpdraftPlus.com</a>').'</p></div>';
 			}
 		}
 		
@@ -337,7 +337,7 @@ class UpdraftPlus_UpdraftCentral_Main {
 				// This option allows the key to be sent to the other side via a known-secure channel (e.g. http over SSL), rather than potentially allowing it to travel over an unencrypted channel (e.g. http back to the user's browser). As such, if specified, it is compulsory for it to work.
 				
 				$updraftplus->register_wp_http_option_hooks();
-				
+
 				$sent_key = wp_remote_post(
 					$post_it,
 					$post_options
@@ -396,7 +396,7 @@ class UpdraftPlus_UpdraftCentral_Main {
 			if (!empty($response) && is_array($response) && !empty($response['key_public'])) {
 				$our_keys[$name_hash]['publickey_remote'] = $response['key_public'];
 			}
-			UpdraftPlus_Options::update_updraft_option('updraft_central_localkeys', $our_keys);
+			UpdraftPlus_Options::update_updraft_option('updraft_central_localkeys', $our_keys, true, 'no');
 
 			return array(
 				'bundle' => $local_bundle,
@@ -460,7 +460,7 @@ class UpdraftPlus_UpdraftCentral_Main {
 				$ret .= '<br>';
 			}
 			
-			$ret .= '<a href="#" data-key_id="'.esc_attr($i).'" class="updraftcentral_key_delete">'.__('Delete...', 'updraftplus').'</a></td></tr>';
+			$ret .= '<a href="'.UpdraftPlus::get_current_clean_url().'" data-key_id="'.esc_attr($i).'" class="updraftcentral_key_delete">'.__('Delete...', 'updraftplus').'</a></td></tr>';
 		}
 		
 		
@@ -468,7 +468,7 @@ class UpdraftPlus_UpdraftCentral_Main {
 		?>
 		<div id="updraftcentral_keys_content" style="margin: 10px 0;">
 			<?php if (!empty($our_keys)) { ?>
-				<a href="#" class="updraftcentral_keys_show hidden-in-updraftcentral"><?php printf(__('Manage existing keys (%d)...', 'updraftplus'), count($our_keys)); ?></a>
+				<a href="<?php echo UpdraftPlus::get_current_clean_url(); ?>" class="updraftcentral_keys_show hidden-in-updraftcentral"><?php printf(__('Manage existing keys (%d)...', 'updraftplus'), count($our_keys)); ?></a>
 			<?php } ?>
 			<table id="updraftcentral_keys_table">
 				<thead>
@@ -490,6 +490,11 @@ class UpdraftPlus_UpdraftCentral_Main {
 		return ob_get_clean();
 	}
 
+	/**
+	 * Return HTML markup for the 'create key' section
+	 *
+	 * @return String - the HTML
+	 */
 	private function create_key_markup() {
 		ob_start();
 		?> 
@@ -546,9 +551,7 @@ class UpdraftPlus_UpdraftCentral_Main {
 								<label>
 									<input id="updraftcentral_keycreate_mothership_firewalled" type="checkbox">
 									<?php _e('Use the alternative method for making a connection with the dashboard.', 'updraftplus'); ?>
-									<a href="#" id="updraftcentral_keycreate_altmethod_moreinfo_get"> 
-										<?php _e('More information...', 'updraftplus'); ?>
-									</a>
+									<a href="<?php echo UpdraftPlus::get_current_clean_url(); ?>" id="updraftcentral_keycreate_altmethod_moreinfo_get"><?php _e('More information...', 'updraftplus'); ?></a>
 									<p id="updraftcentral_keycreate_altmethod_moreinfo" style="display:none; border: 1px dotted; padding: 3px; margin: 2px 10px 2px 24px;">
 										<em><?php _e('This is useful if the dashboard webserver cannot be contacted with incoming traffic by this website (for example, this is the case if this website is hosted on the public Internet, but the UpdraftCentral dashboard is on localhost, or on an Intranet, or if this website has an outgoing firewall), or if the dashboard website does not have a SSL certificate.');?></em>
 									</p>
@@ -578,7 +581,7 @@ class UpdraftPlus_UpdraftCentral_Main {
 		ob_start();
 		?>
 			<div id="updraftcentral_view_log_container" style="margin: 10px 0;">
-				<a href="#" id="updraftcentral_view_log"><?php _e('View recent UpdraftCentral log events', 'updraftplus'); ?>...</a><br>
+				<a href="<?php echo UpdraftPlus::get_current_clean_url(); ?>" id="updraftcentral_view_log"><?php _e('View recent UpdraftCentral log events', 'updraftplus'); ?>...</a><br>
 				<pre id="updraftcentral_view_log_contents" style="min-height: 110px; padding: 0 4px;">
 				</pre>
 			</div>

@@ -53,12 +53,12 @@ class TextAreaField extends Field {
         if ($comment->comment_parent && !$data['is_show_sform']) {
             return '';
         }
-        $html = '<tr><td class="first">';
+        $html = '<tr class="' . $key . '-wrapper"><td class="first">';
         $html .= '<label for = "' . $key . '">' . $data['name'] . ': </label>';
         $html .= '</td><td>';
         $html .= '<div class="wpdiscuz-item">';
         $required = $data['required'] ? 'required="required"' : '';
-        $html .= '<textarea  ' . $required . ' class="wpd-field wpd-field-textarea" id="' . $key . '"  name="' . $key . '">'.$value.'</textarea>';
+        $html .= '<textarea  ' . $required . ' class="wpd-field wpd-field-textarea" id="' . $key . '"  name="' . $key . '">'.esc_html($value).'</textarea>';
         $html .= '</div>';
         $html .= '</td></tr >';
         return $html;
@@ -69,22 +69,19 @@ class TextAreaField extends Field {
             return;
         }
         ?>
-        <div class="wpdiscuz-item">
+        <div class="wpdiscuz-item <?php echo $name, '-wrapper'; ?>">
             <?php $required = $args['required'] ? 'required="required"' : ''; ?>
-            <textarea <?php echo $required; ?> class="<?php echo $name; ?> wpd-field wpd-field-textarea"  name="<?php echo $name; ?>" value="" placeholder="<?php _e($args['name'], 'wpdiscuz'); ?>"></textarea>
+            <textarea <?php echo $required; ?> class="<?php echo $name; ?> wpd-field wpd-field-textarea"  name="<?php echo $name; ?>" value="" placeholder="<?php _e($args['name'], 'wpdiscuz'); echo !empty($args['required']) ? '*' : ''; ?>"></textarea>
             <?php if ($args['desc']) { ?>
-            <div class="wpd-field-desc"><i class="fa fa-question-circle-o" aria-hidden="true"></i><span><?php echo esc_html($args['desc']); ?></span></div>
+            <div class="wpd-field-desc"><i class="far fa-question-circle" aria-hidden="true"></i><span><?php echo $args['desc']; ?></span></div>
             <?php } ?>
         </div>
         <?php
     }
 
     public function frontHtml($value, $args) {
-        if(!$args['is_show_on_comment']){
-            return '';
-        }
         $html = '<div class="wpd-custom-field wpd-cf-text">';
-        $html .= '<div class="wpd-cf-label">' . $args['name'] . '</div> <div class="wpd-cf-value"> ' . apply_filters('wpdiscuz_custom_field_textarea', $value , $args) . '</div>';
+        $html .= '<div class="wpd-cf-label">' . $args['name'] . '</div> <div class="wpd-cf-value"> ' . apply_filters('wpdiscuz_custom_field_textarea', nl2br($value) , $args) . '</div>';
         $html .= '</div>';
         return $html;
     }

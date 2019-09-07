@@ -2,8 +2,8 @@
 Contributors: brianbrey
 Tags: wordpress, plugin, ajax, load more, svg
 Requires at least: 3.9
-Tested up to: 4.0
-Stable tag: 1.0.2
+Tested up to: 4.9
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,6 +32,10 @@ Once plugin is activated, you need to update plugin settings under 'Settings > E
 3. Example of how to add the button to your template.
 
 == Changelog ==
+
+= 1.0.3 =
+* 2017-11-27
+* Added custom events polyfill for IE
 
 = 1.0.2 =
 * 2017-05-30
