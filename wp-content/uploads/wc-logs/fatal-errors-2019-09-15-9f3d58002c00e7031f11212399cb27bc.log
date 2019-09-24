@@ -1,0 +1,14 @@
+2019-09-15T01:43:22-07:00 CRITICAL Out of memory (allocated 47091712) (tried to allocate 4096 bytes) in /home/ladystars.vn/public_html/wp-includes/functions.php on line 325
+
+2019-09-15T01:44:06-07:00 CRITICAL Out of memory (allocated 30314496) (tried to allocate 4096 bytes) in /home/ladystars.vn/public_html/wp-includes/functions.php on line 325
+
+2019-09-15T02:58:11-07:00 CRITICAL Out of memory (allocated 45002752) (tried to allocate 20480 bytes) in /home/ladystars.vn/public_html/wp-includes/functions.php on line 325
+
+2019-09-15T02:58:11-07:00 CRITICAL Out of memory (allocated 34516992) (tried to allocate 4096 bytes) in /home/ladystars.vn/public_html/wp-includes/functions.php on line 325
+
+2019-09-15T04:43:48-07:00 CRITICAL Out of memory (allocated 19841024) (tried to allocate 147456 bytes) in /home/ladystars.vn/public_html/wp-includes/functions.php on line 325
+
+2019-09-15T08:26:27-07:00 CRITICAL Out of memory (allocated 40828928) (tried to allocate 4096 bytes) in /home/ladystars.vn/public_html/wp-includes/functions.php on line 325
+
+2019-09-15T22:28:13-07:00 CRITICAL Out of memory (allocated 42938368) (tried to allocate 12288 bytes) in /home/ladystars.vn/public_html/wp-includes/functions.php on line 325
+
