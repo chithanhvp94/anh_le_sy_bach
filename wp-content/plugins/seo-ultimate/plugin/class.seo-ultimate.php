@@ -1652,8 +1652,8 @@ class SEO_Ultimate {
 				continue;
 			
 			//Only show the meta box if there are fields to show.
-			if ($this->get_postmeta_array($screen))
-				add_meta_box('su_postmeta', __('SEO Settings', 'seo-ultimate'), create_function('', 'global $seo_ultimate; $seo_ultimate->show_postmeta_box("'.$screen.'");'), $screen, 'normal', 'high');
+			//if ($this->get_postmeta_array($screen))
+			//	add_meta_box('su_postmeta', __('SEO Settings', 'seo-ultimate'), create_function('', 'global $seo_ultimate; $seo_ultimate->show_postmeta_box("'.$screen.'");'), $screen, 'normal', 'high');
 		}
 	}
 	
