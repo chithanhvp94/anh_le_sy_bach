@@ -61,7 +61,9 @@ class suarr {
 	 */
 	static function vksort(&$arr, $valuekey) {
 		$valuekey = sustr::preg_filter('A-Za-z0-9 ', $valuekey);
-		uasort($arr, create_function('$a,$b', 'return strcasecmp($a["'.$valuekey.'"], $b["'.$valuekey.'"]);'));
+		uasort($arr, function($a, $b) use ($valuekey) {
+            return strcasecmp($a["'.$valuekey.'"], $b["'.$valuekey.'"]);
+        });
 	}
 	
 	/**
@@ -73,7 +75,9 @@ class suarr {
 	 */
 	static function vklrsort(&$arr, $valuekey) {
 		$valuekey = sustr::preg_filter('A-Za-z0-9 ', $valuekey);
-		uasort($arr, create_function('$a,$b', 'return strlen($b["'.$valuekey.'"]) - strlen($a["'.$valuekey.'"]);'));
+		uasort($arr, function($a, $b) use ($valuekey) {
+            return strlen($b["'.$valuekey.'"]) - strlen($a["'.$valuekey.'"]);
+        });
 	}
 	
 	/**

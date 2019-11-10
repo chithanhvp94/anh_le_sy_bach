@@ -127,7 +127,9 @@ class SU_Titles extends SU_Module {
 	}
 	
 	function before_header() {
-		if ($this->should_rewrite_title()) ob_start(array(&$this, 'change_title_tag'));
+		if ($this->should_rewrite_title()) {
+		    ob_start(array(&$this, 'change_title_tag'));
+		}
 	}
 
 	function after_header() {
@@ -154,37 +156,38 @@ class SU_Titles extends SU_Module {
 	function get_title() {
 		
 		global $wp_query, $wp_locale;
-		
+
 		//Custom post/page title?
 		if ($post_title = $this->get_postmeta('title'))
 			return htmlspecialchars($this->get_title_paged($post_title));
-		
-		//Custom taxonomy title?
+
+        // Custom taxonomy title?
 		if (suwp::is_tax()) {
 			$tax_titles = $this->get_setting('taxonomy_titles');
 			if ($tax_title = $tax_titles[$wp_query->get_queried_object_id()])
 				return htmlspecialchars($this->get_title_paged($tax_title));
 		}
-		
+
 		//Get format
 		if (!$this->should_rewrite_title()) return '';
 		if (!($format = $this->get_title_format())) return '';
-		
+
 		//Load post/page titles
 		$post_id = 0;
 		$post_title = '';
 		$parent_title = '';
 		if (is_singular()) {
 			$post = $wp_query->get_queried_object();
+
 			$post_title = strip_tags( apply_filters( 'single_post_title', $post->post_title, $post ) );
 			$post_id = $post->ID;
-			
+
 			if ($parent = $post->post_parent) {
 				$parent = get_post($parent);
 				$parent_title = strip_tags( apply_filters( 'single_post_title', $parent->post_title, $post ) );
 			}
 		}
-		
+
 		//Load date-based archive titles
 		if ($m = get_query_var('m')) {
 			$year = substr($m, 0, 4);
@@ -195,11 +198,14 @@ class SU_Titles extends SU_Module {
 			$monthnum = get_query_var('monthnum');
 			$daynum = get_query_var('day');
 		}
-		$month = $wp_locale->get_month($monthnum);
-		$monthnum = zeroise($monthnum, 2);
-		$day = date('jS', mktime(12,0,0,$monthnum,$daynum,$year));
-		$daynum = zeroise($daynum, 2);
-		
+
+        if ($monthnum) {
+            $month = $wp_locale->get_month($monthnum);
+            $monthnum = zeroise($monthnum, 2);
+            $day = date('jS', mktime(12,0,0,$monthnum,$daynum,$year));
+            $daynum = zeroise($daynum, 2);
+        }
+
 		//Load category titles
 		$cat_title = $cat_titles = $cat_desc = '';
 		if (is_category()) {
@@ -213,17 +219,17 @@ class SU_Titles extends SU_Module {
 		}
 		if (strlen($cat_title) && $this->get_setting('terms_ucwords', true))
 			$cat_title = sustr::tclcwords($cat_title);
-		
+
 		//Load tag titles
 		$tag_title = $tag_desc = '';
 		if (is_tag()) {
 			$tag_title = single_tag_title('', false);
 			$tag_desc = tag_description();
-			
+
 			if ($this->get_setting('terms_ucwords', true))
 				$tag_title = sustr::tclcwords($tag_title);
 		}
-		
+
 		//Load author titles
 		if (is_author()) {
 			$author_obj = $wp_query->get_queried_object();
@@ -249,37 +255,42 @@ class SU_Titles extends SU_Module {
 				, 'lastname' => ''
 				, 'nickname' => ''
 			);
-		
+
 		$variables = array(
-			  '{blog}' => get_bloginfo('name')
-			, '{tagline}' => get_bloginfo('description')
-			, '{post}' => $post_title
-			, '{page}' => $post_title
-			, '{page_parent}' => $parent_title
-			, '{category}' => $cat_title
-			, '{categories}' => $cat_titles
-			, '{category_description}' => $cat_desc
-			, '{tag}' => $tag_title
-			, '{tag_description}' => $tag_desc
-			, '{tags}' => su_lang_implode(get_the_tags($post_id), 'name', true)
-			, '{daynum}' => $daynum
-			, '{day}' => $day
-			, '{monthnum}' => $monthnum
-			, '{month}' => $month
-			, '{year}' => $year
-			, '{author}' => $author['name']
-			, '{author_name}' => $author['name']
-			, '{author_username}' => $author['username']
-			, '{author_firstname}' => $author['firstname']
-			, '{author_lastname}' => $author['lastname']
-			, '{author_nickname}' => $author['nickname']
-			, '{query}' => su_esc_attr(get_search_query())
-			, '{ucquery}' => su_esc_attr(ucwords(get_search_query()))
-			, '{url_words}' => $this->get_url_words($_SERVER['REQUEST_URI'])
+		    '{blog}' => get_bloginfo('name'),
+            '{tagline}' => get_bloginfo('description'),
+            '{post}' => $post_title,
+            '{page}' => $post_title,
+            '{page_parent}' => $parent_title,
+            '{category}' => $cat_title,
+            '{categories}' => $cat_titles,
+            '{category_description}' => $cat_desc,
+            '{tag}' => $tag_title,
+            '{tag_description}' => $tag_desc,
+            '{tags}' => su_lang_implode(get_the_tags($post_id), 'name', true),
+            '{daynum}' => $daynum,
+            '{monthnum}' => $monthnum,
+            '{year}' => $year,
+            '{author}' => $author['name'],
+            '{author_name}' => $author['name'],
+            '{author_username}' => $author['username'],
+            '{author_firstname}' => $author['firstname'],
+            '{author_lastname}' => $author['lastname'],
+            '{author_nickname}' => $author['nickname'],
+            '{query}' => su_esc_attr(get_search_query()),
+            '{ucquery}' => su_esc_attr(ucwords(get_search_query())),
+            '{url_words}' => $this->get_url_words($_SERVER['REQUEST_URI'])
 		);
-		
+
+        if ($monthnum) {
+            array_push($variables, array(
+                '{day}' => $day,
+                '{month}' => $month,
+            ));
+        }
+
 		$title = str_replace(array_keys($variables), array_values($variables), htmlspecialchars($format));
-		
+
 		return $this->get_title_paged($title);
 	}
 	

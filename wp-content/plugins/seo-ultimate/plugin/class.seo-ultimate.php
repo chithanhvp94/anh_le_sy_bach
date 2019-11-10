@@ -1652,10 +1652,18 @@ class SEO_Ultimate {
 				continue;
 			
 			//Only show the meta box if there are fields to show.
-			//if ($this->get_postmeta_array($screen))
-			//	add_meta_box('su_postmeta', __('SEO Settings', 'seo-ultimate'), create_function('', 'global $seo_ultimate; $seo_ultimate->show_postmeta_box("'.$screen.'");'), $screen, 'normal', 'high');
+			if ($this->get_postmeta_array($screen)) {
+                add_meta_box('su_postmeta', __('SEO Settings', 'seo-ultimate'), array($this, 'su_postmeta_callback'), $screen, 'normal', 'high', $screen);
+            }
 		}
 	}
+
+	function su_postmeta_callback($post, $callback_args)
+    {
+        global $seo_ultimate;
+        $callback = $callback_args['args'];
+        $seo_ultimate->show_postmeta_box("'.$callback.'");
+    }
 	
 	/**
 	 * Displays the inner contents of the post meta box.

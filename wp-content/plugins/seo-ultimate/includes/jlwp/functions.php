@@ -74,7 +74,9 @@ class suwp {
 	 */
 	static function load_rss($url, $ua) {
 		$ua = addslashes($ua);
-		$uafunc = create_function('', "return '$ua';");
+		$uafunc = function () use ($ua) {
+            return $ua;
+        };
 		add_filter('http_headers_useragent', $uafunc);
 		require_once (ABSPATH . WPINC . '/class-simplepie.php');
 		$rss = fetch_feed($url);
