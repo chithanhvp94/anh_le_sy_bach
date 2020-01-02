@@ -1,0 +1,41 @@
+/*
+Theme Name: Itheme WordPress
+Author: the WordPress DEV team
+Author URI: https://wordpress.org/
+Version: 1.7
+License: GNU General Public License v2 or later
+*/
+@font-face {
+  font-family: 'Glyphicons Halflings';
+
+  src: url('fonts/glyphicons-halflings-regular.eot');
+  src: url('fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('fonts/glyphicons-halflings-regular.woff2') format('woff2'), url('fonts/glyphicons-halflings-regular.woff') format('woff'), url('fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
+}
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('fonts/fontawesome-webfont.eot?v=4.7.0');
+  src: url('fonts/fontawesome-webfont.eot?#iefix&v=4.7.0') format('embedded-opentype'), url('fonts/fontawesome-webfont.woff2?v=4.7.0') format('woff2'), url('fonts/fontawesome-webfont.woff?v=4.7.0') format('woff'), url('fonts/fontawesome-webfont.ttf?v=4.7.0') format('truetype'), url('fonts/fontawesome-webfont.svg?v=4.7.0#fontawesomeregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+.owl-carousel .owl-video-play-icon{background: url("/owl/assets/owl.video.play.png") no-repeat;}
+.icon-cart{background: url(images/icons_new14.png) 0 -90px no-repeat;}
+.icon-search{background: url(images/icons_new14.png) 8px 9px no-repeat;}
+@font-face{
+    font-family: "FuturaLTW01-Heavy";
+    src: url("fonts/FuturaLTW01-Heavy.ttf");
+}
+@font-face {
+    font-family: "Futura LT W01 Medium";
+    src:url("fonts/Futura-LT-W01-Medium.woff2");
+}
+@font-face {
+    font-family:"Acta W01 Book";
+    src:url("fonts/Acta-W01-Book.woff2")
+}
+@font-face {
+    font-family: "Acta W01 Book Italic";
+    src:url("fonts/Acta-W01-Book-Italic.woff2");
+}
+.top-cart #cartToggle .first{background: url(images/icons_new14.png) -24px -110px no-repeat;}
+.iconedit{background: url(images/icn_general_1.png) 0 -290px no-repeat;}

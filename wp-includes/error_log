@@ -1,0 +1,1 @@
+[27-Jul-2018 15:21:18 UTC] PHP Fatal error:  Call to undefined function _deprecated_file() in /home/ladystar/public_html/wp-includes/locale.php on line 10
